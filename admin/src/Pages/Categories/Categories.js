@@ -156,7 +156,7 @@ const Categories = () => {
                             <tr>
                                 <th className="border border-gray-300 px-4 py-2">#</th>
                                 <th className="border border-gray-300 px-4 py-2">Name</th>
-                                <th className="border border-gray-300 px-4 py-2">Subcategories</th>
+                                {/* <th className="border border-gray-300 px-4 py-2">Subcategories</th> */}
                                 <th className="border border-gray-300 px-4 py-2">Actions</th>
                             </tr>
                         </thead>
@@ -167,9 +167,9 @@ const Categories = () => {
                                         {index + 1}
                                     </td>
                                     <td className="border border-gray-300  text-black px-4 py-2">{category.name}</td>
-                                    <td className="border border-gray-300  text-black px-4 py-2">
+                                    {/* <td className="border border-gray-300  text-black px-4 py-2">
                                         {category.SubCategory.length}
-                                    </td>
+                                    </td> */}
                                     <td className="border border-gray-300  text-black px-4 py-2 flex gap-2 justify-center">
                                         <button
                                             onClick={() => {
