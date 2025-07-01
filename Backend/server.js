@@ -15,7 +15,9 @@ const corsOptions = {
         "http://localhost:5173",
         "http://localhost:5174",
         "https://nypers.in",
-        "https://www.nypers.in"
+        "https://www.nypers.in",
+        "https://www.admin.nypers.in",
+        "https://admin.nypers.in",
     ],
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
