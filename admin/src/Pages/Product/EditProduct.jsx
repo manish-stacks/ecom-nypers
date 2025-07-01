@@ -595,7 +595,7 @@ const EditProduct = () => {
                     >
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <Input
-                          label="Write Weight of Product (ex:500gram , 2Kg)"
+                          label="Write Size of Product (ex:7, 8)"
                           type="text"
                           placeholder="Write Weight of Product"
                           name={`Varient[${index}].quantity`}

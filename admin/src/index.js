@@ -6,12 +6,10 @@ import reportWebVitals from './reportWebVitals';
 import { Toaster } from 'react-hot-toast'
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
- <>
- 
- <App />
- <Toaster/>
- </>
-
+    <>
+        <App />
+        <Toaster />
+    </>
 );
 
 reportWebVitals();
