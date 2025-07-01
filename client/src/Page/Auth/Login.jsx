@@ -27,7 +27,7 @@ const Login = () => {
         e.preventDefault()
         setIsLoading(true)
         try {
-            const response = await axios.post('https://api.nypers.in/v1/login', formData)
+            const response = await axios.post('https://api.nypers.in/api/v1/login', formData)
             setIsLoading(false);
             toast.success('Successfully logged in')
             sessionStorage.setItem('token_login', response.data.token);

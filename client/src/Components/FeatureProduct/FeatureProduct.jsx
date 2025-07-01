@@ -11,7 +11,7 @@ const FeatureProduct = () => {
 
     const handleFetchProduct = async () => {
         try {
-            const { data } = await axios.get('https://api.nypers.in/v1/get-product');
+            const { data } = await axios.get('https://api.nypers.in/api/v1/get-product');
             const filteredProducts = data?.products?.filter(product => product?.isShowOnHomeScreen === true);
             setFeaturedProducts(filteredProducts)
 

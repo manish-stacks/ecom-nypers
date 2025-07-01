@@ -18,7 +18,7 @@ const Profile = () => {
         const fetchUser = async () => {
             setIsLoading(true)
             try {
-                const { data } = await axios.get("https://api.nypers.in/v1/my-details", {
+                const { data } = await axios.get("https://api.nypers.in/api/v1/my-details", {
                     headers: {
                         Authorization: `Bearer ${token}`,
                     },
@@ -36,7 +36,7 @@ const Profile = () => {
         const fetchOrder = async () => {
             setIsLoading(true)
             try {
-                const { data } = await axios.get("https://api.nypers.in/v1/my-all-order", {
+                const { data } = await axios.get("https://api.nypers.in/api/v1/my-all-order", {
                     headers: {
                         Authorization: `Bearer ${token}`,
                     },
@@ -65,7 +65,7 @@ const Profile = () => {
     const handleDeleteAccount = async() => {
         try {
             const token = sessionStorage.getItem("token_login");
-            const { data } = await axios.delete("https://api.nypers.in/v1/delete-account", {
+            const { data } = await axios.delete("https://api.nypers.in/api/v1/delete-account", {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },

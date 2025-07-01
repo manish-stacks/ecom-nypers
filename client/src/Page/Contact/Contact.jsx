@@ -33,7 +33,7 @@ const Contact = () => {
 
     const handleFetchSetting = async () => {
         try {
-            const { data } = await axios.get('https://api.nypers.in/v1/admin/settings')
+            const { data } = await axios.get('https://api.nypers.in/api/v1/admin/settings')
             setSetting(data.data)
         } catch (error) {
             console.log("Internal server error", error)
@@ -55,7 +55,7 @@ const Contact = () => {
         e.preventDefault()
         setIsLoading(true)
         try {
-            const res = await axios.post('https://api.nypers.in/v1/support-request', formData)
+            const res = await axios.post('https://api.nypers.in/api/v1/support-request', formData)
             setIsLoading(false)
             setIsSubmitted(true)
             setFormData({

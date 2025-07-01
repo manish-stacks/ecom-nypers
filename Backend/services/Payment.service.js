@@ -23,7 +23,7 @@ class PaymentService {
                 merchantUserId: merchantUserId,
                 name: "User",
                 amount: paymentDetails?.totalPrice * 100 || 52000, // Amount in Paise
-                callbackUrl: paymentDetails?.callbackUrl || 'https://api.nypers.in/v1/check-payment',
+                callbackUrl: paymentDetails?.callbackUrl || 'https://api.nypers.in/api/v1/check-payment',
                 redirectUrl: `${this.redirectUrl}/${transactionId}`,
                 redirectMode: 'POST',
                 paymentInstrument: {

@@ -13,7 +13,7 @@ const ChangePassword = () => {
     setError('');
     setMessage('');
     try {
-      const { data } = await axios.post('https://api.nypers.in/v1/Password-Change-Request', {
+      const { data } = await axios.post('https://api.nypers.in/api/v1/Password-Change-Request', {
         Email: email,
         newPassword,
       });
@@ -33,7 +33,7 @@ const ChangePassword = () => {
     setError('');
     setMessage('');
     try {
-      const { data } = await axios.post('https://api.nypers.in/v1/resend-otp', {
+      const { data } = await axios.post('https://api.nypers.in/api/v1/resend-otp', {
         email,
         type: 'password_reset',
       });
@@ -51,7 +51,7 @@ const ChangePassword = () => {
     setError('');
     setMessage('');
     try {
-      const { data } = await axios.post('https://api.nypers.in/v1/verify-otp', {
+      const { data } = await axios.post('https://api.nypers.in/api/v1/verify-otp', {
         email,
         otp,
         type: 'password_reset',

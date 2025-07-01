@@ -39,7 +39,7 @@ function Reports() {
     try {
       setLoading(true);
       setError('');
-      const response = await axios.post('https://api.nypers.in/v1/get-reports', {
+      const response = await axios.post('https://api.nypers.in/api/v1/get-reports', {
         reportType,
         startDate: dateRange.startDate,
         endDate: dateRange.endDate
