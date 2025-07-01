@@ -5,18 +5,23 @@ const dotenv = require('dotenv');
 dotenv.config();
 const cookieParser = require('cookie-parser')
 const ConnectDB = require('./database/database.config');
-const  route  = require('./routes/routes');
+const route = require('./routes/routes');
 const setupBullBoard = require('./bullboard');
 const app = express();
 const port = process.env.PORT;
 
-// CORS configuration
 const corsOptions = {
-  origin: ["http://localhost:5173","http://localhost:5174","https://nypers.in/","https://www.nypers.in/"], // or an array: ["http://localhost:3000", "https://yourdomain.com"]
-  credentials: true,               // allow cookies and auth headers
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"],
+    origin: [
+        "http://localhost:5173",
+        "http://localhost:5174",
+        "https://nypers.in",
+        "https://www.nypers.in"
+    ],
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
 };
+
 
 // Middleware
 app.use(cors(corsOptions));
@@ -55,7 +60,7 @@ const connectRedis = async () => {
     await connectRedis();
 })();
 
-app.use('/api/v1',route)
+app.use('/api/v1', route)
 app.listen(port, () => {
     console.log(`Bull Board available at http://localhost:${port}/admin/queues`);
     console.log(`Server is running on http://localhost:${port}`);
