@@ -32,7 +32,7 @@ const Register = () => {
         // setIsSubmitted(true)
         setLoading(true)
         try {
-            const response = await axios.post(`http://localhost:4000/api/v1/regsiter-user`, formData)
+            const response = await axios.post(`https://www.api.nypers.in/api/v1/regsiter-user`, formData)
             console.log(response.data.data)
             const user = response.data.data
             // setSuccess(response.data.message);

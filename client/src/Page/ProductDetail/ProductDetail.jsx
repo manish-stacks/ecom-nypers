@@ -19,7 +19,7 @@ const ProductDetail = () => {
 
         const fetchUser = async () => {
             try {
-                const { data } = await axios.get('http://localhost:4000/api/v1/my-details', {
+                const { data } = await axios.get('https://www.api.nypers.in/api/v1/my-details', {
                     headers: {
                         Authorization: `Bearer ${token}`
                     }
@@ -39,7 +39,7 @@ const ProductDetail = () => {
     const handleFetchProduct = async () => {
         try {
             setLoading(true);
-            const { data } = await axios.get(`http://localhost:4000/api/v1/get-product/${id}`);
+            const { data } = await axios.get(`https://www.api.nypers.in/api/v1/get-product/${id}`);
             setProduct(data.data);
             // Set default color if colors are available
             if (data.data.color && data.data.color.length > 0) {

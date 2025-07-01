@@ -22,8 +22,8 @@ const EditAboutUs = () => {
   const [loading, setLoading] = useState(false);
   const [expandedSections, setExpandedSections] = useState({});
 
-  const getUrl = "http://localhost:4000/api/v1/get-about";
-  const editUrl = "http://localhost:4000/api/v1/create-or-update-about";
+  const getUrl = "https://www.api.nypers.in/api/v1/get-about";
+  const editUrl = "https://www.api.nypers.in/api/v1/create-or-update-about";
 
   useEffect(() => {
     fetchAboutData();

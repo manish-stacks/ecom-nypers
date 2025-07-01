@@ -12,7 +12,7 @@ const Hero = () => {
     const handleFetchProduct = async () => {
       console.log("Fetching products...")
       try {
-        const { data } = await axios.get('http://localhost:4000/api/v1/get-product');
+        const { data } = await axios.get('https://www.api.nypers.in/api/v1/get-product');
         const filteredProducts = data.products.filter(product => product.isShowOnHomeScreen === true);
         setShoes(filteredProducts);
       } catch (error) {

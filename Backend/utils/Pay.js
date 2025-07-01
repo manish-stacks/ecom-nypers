@@ -20,8 +20,8 @@ async function initiatePayment(req, res, order) {
             merchantUserId: merchantUserId,
             name: "User",
             amount: totalAmount * 100,
-            callbackUrl: 'http://localhost:4000/payment-failed',
-            redirectUrl: `http://localhost:4000/api/v1/verify-payment/${transactionId}`,
+            callbackUrl: 'https://www.api.nypers.in/payment-failed',
+            redirectUrl: `https://www.api.nypers.in/api/v1/verify-payment/${transactionId}`,
             redirectMode: 'POST',
             paymentInstrument: {
                 type: 'PAY_PAGE',

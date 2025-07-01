@@ -11,7 +11,7 @@ const Newsletter = () => {
   const handleSubmit = async(e) => {
     e.preventDefault()
     try {
-      const response = await axios.post('http://localhost:4000/api/v1/create-newsletter', { email })
+      const response = await axios.post('https://www.api.nypers.in/api/v1/create-newsletter', { email })
       setIsSubscribed(true)
       setEmail('')
       toast.success(response.data.message)

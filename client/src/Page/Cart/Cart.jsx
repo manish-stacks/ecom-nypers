@@ -12,7 +12,7 @@ const CartPage = () => {
     const token = sessionStorage.getItem("token_login")
     const fetchUser = async () => {
       try {
-        const { data } = await axios.get("http://localhost:4000/api/v1/my-details", {
+        const { data } = await axios.get("https://www.api.nypers.in/api/v1/my-details", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -63,7 +63,7 @@ const CartPage = () => {
   const applyPromoCode = async () => {
     setCouponError("")
     try {
-      const response = await axios.post("http://localhost:4000/api/v1/apply-coupon", {
+      const response = await axios.post("https://www.api.nypers.in/api/v1/apply-coupon", {
         code: promoCode,
         orderAmount: cartSubtotal,
       })

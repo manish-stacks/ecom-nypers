@@ -114,7 +114,7 @@ const Shop = () => {
             setLoading(true)
             
             // Use search API if there's a query, otherwise use the original API
-            let url = 'http://localhost:4000/api/v1/'
+            let url = 'https://www.api.nypers.in/api/v1/'
             if (query && query.trim()) {
                 url += `search_product_and_filter?query=${encodeURIComponent(query.trim())}&page=${page}`
             } else {

@@ -34,7 +34,7 @@ const CheckoutFlow = () => {
 
   const handleFetchSetting = async () => {
     try {
-      const {data} = await axios.get("http://localhost:4000/api/v1/admin/settings")
+      const {data} = await axios.get("https://www.api.nypers.in/api/v1/admin/settings")
       console.log("data.data.paymentImage",data.data.paymentImage)
       setQRCodeUrl(data.data.paymentImage)
     } catch (error) {
@@ -91,7 +91,7 @@ const CheckoutFlow = () => {
 
   const fetchUserDetails = async (token) => {
     try {
-      const response = await fetch("http://localhost:4000/api/v1/my-details", {
+      const response = await fetch("https://www.api.nypers.in/api/v1/my-details", {
         headers: { Authorization: `Bearer ${token}` },
       })
       const data = await response.json()
@@ -157,7 +157,7 @@ const CheckoutFlow = () => {
         transactionId: paymentMethod === "ONLINE" ? transactionId : null,
       }
 
-      const response = await fetch("http://localhost:4000/api/v1/add-order", {
+      const response = await fetch("https://www.api.nypers.in/api/v1/add-order", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

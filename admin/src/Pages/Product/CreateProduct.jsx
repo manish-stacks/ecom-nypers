@@ -66,7 +66,7 @@ const CreateProduct = () => {
     };
     const fetchCategoryData = async () => {
         try {
-            const res = await axios.get('http://localhost:4000/api/v1/admin/category')
+            const res = await axios.get('https://www.api.nypers.in/api/v1/admin/category')
             const data = res.data.categories
 
             console.log("categirr", res.data)
@@ -183,7 +183,7 @@ const CreateProduct = () => {
 
 
         try {
-            const data = await axios.post('http://localhost:4000/api/v1/add-new-product', formDataObject, {
+            const data = await axios.post('https://www.api.nypers.in/api/v1/add-new-product', formDataObject, {
                 headers: {
                     'Content-Type': 'multipart/form-data'
                 }
