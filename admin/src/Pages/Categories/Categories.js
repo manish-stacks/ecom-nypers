@@ -186,7 +186,7 @@ const Categories = () => {
                                         >
                                             Delete
                                         </button>
-                                        <button
+                                        {/* <button
                                             onClick={() => {
                                                 setAdd_sub_model(true);
                                                 setSelectedCategory(category._id);
@@ -194,8 +194,8 @@ const Categories = () => {
                                             className="bg-purple-500 text-white px-3 py-1 rounded hover:bg-purple-600"
                                         >
                                             + Sub Category
-                                        </button>
-                                        <button
+                                        </button> */}
+                                        {/* <button
                                             onClick={() => {
                                                 setView_sub_model(true);
                                                 setViewSelectedCategory(category._id);
@@ -203,7 +203,7 @@ const Categories = () => {
                                             className="bg-violet-500 text-white px-3 py-1 rounded hover:bg-violet-600"
                                         >
                                             View Sub Category
-                                        </button>
+                                        </button> */}
 
                                     </td>
                                 </tr>
