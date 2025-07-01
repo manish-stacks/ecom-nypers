@@ -10,9 +10,16 @@ const setupBullBoard = require('./bullboard');
 const app = express();
 const port = process.env.PORT;
 
+// CORS configuration
+const corsOptions = {
+  origin: ["http://localhost:5173","http://localhost:5174","https://nypers.in/","https://www.nypers.in/"], // or an array: ["http://localhost:3000", "https://yourdomain.com"]
+  credentials: true,               // allow cookies and auth headers
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+};
 
 // Middleware
-app.use(cors());
+app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
