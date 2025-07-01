@@ -3,7 +3,7 @@ import axios from "axios";
 import toast from "react-hot-toast";
 
 const TestimonialCreate = () => {
-    const createUrl = "https://www.api.nypers.in/api/v1/testimonial";
+    const createUrl = "https://api.nypers.in/v1/testimonial";
 
     const [formData, setFormData] = useState({
         name: "",

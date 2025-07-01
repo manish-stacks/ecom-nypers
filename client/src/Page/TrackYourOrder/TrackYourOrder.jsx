@@ -25,7 +25,7 @@ const TrackYourOrder = () => {
         return;
       }
 
-      const response = await fetch(`https://www.api.nypers.in/api/v1/my-recent-order/${orderId}`, {
+      const response = await fetch(`https://api.nypers.in/v1/my-recent-order/${orderId}`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,

@@ -36,7 +36,7 @@ function Settings() {
 
   const fetchSettings = async () => {
     try {
-      const response = await fetch("https://www.api.nypers.in/api/v1/admin/settings");
+      const response = await fetch("https://api.nypers.in/v1/admin/settings");
       const data = await response.json();
       console.log(data);
       setSettings(data.data);
@@ -72,7 +72,7 @@ function Settings() {
 
     try {
       const response = await axios.put(
-        `https://www.api.nypers.in/api/v1/admin/settings/${settings._id}`,
+        `https://api.nypers.in/v1/admin/settings/${settings._id}`,
         settings
       );
 

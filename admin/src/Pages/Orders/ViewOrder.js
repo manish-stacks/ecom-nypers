@@ -23,7 +23,7 @@ const ViewOrder = () => {
       try {
         setLoading(true);
         const { data } = await axios.get(
-          `https://www.api.nypers.in/api/v1/recent-order/${id}`
+          `https://api.nypers.in/v1/recent-order/${id}`
         );
         setOrderData(data.data);
       } catch (err) {

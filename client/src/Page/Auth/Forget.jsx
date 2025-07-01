@@ -42,7 +42,7 @@ const Forget = () => {
         setSuccessMessage('')
 
         try {
-            const response = await fetch('https://www.api.nypers.in/api/v1/Password-Change-Request', {
+            const response = await fetch('https://api.nypers.in/v1/Password-Change-Request', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -97,7 +97,7 @@ const Forget = () => {
         setSuccessMessage('')
 
         try {
-            const response = await fetch('https://www.api.nypers.in/api/v1/Password-Change-Request', {
+            const response = await fetch('https://api.nypers.in/v1/Password-Change-Request', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

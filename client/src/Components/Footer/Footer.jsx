@@ -10,7 +10,7 @@ const Footer = () => {
 
     const handleFetchSetting = async () => {
         try {
-            const { data } = await axios.get('https://www.api.nypers.in/api/v1/admin/settings')
+            const { data } = await axios.get('https://api.nypers.in/v1/admin/settings')
             setSetting(data.data)
         } catch (error) {
             console.log("Internal server error", error)

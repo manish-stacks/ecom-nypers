@@ -302,72 +302,73 @@ exports.ChangeOrderStatus = async (req, res) => {
       });
     }
 
-    if (status === 'confirmed') {
-      for (const item of Order.items) {
-        const { productId, quantity, varient_type } = item;
-        console.log("productId, quantity, varient_type",productId, quantity, varient_type)
+    // if (status === 'confirmed') {
+    //   for (const item of Order.items) {
+    //     console.log("item",item)
+    //     const { productId, quantity, varient_type } = item;
+    //     console.log("productId, quantity, varient_type",productId, quantity, varient_type)
 
-        const isVarient = !!(varient_type && varient_type.id);
+    //     const isVarient = !!(varient_type && varient_type.id);
 
-        // Check available stock
-        const stockCheck = await toCheckStock(
-          productId,
-          quantity,
-          isVarient,
-          varient_type?.id
-        );
+    //     // Check available stock
+    //     const stockCheck = await toCheckStock(
+    //       productId,
+    //       quantity,
+    //       isVarient,
+    //       varient_type?.id
+    //     );
 
-        if (!stockCheck) {
-          return res.status(400).json({
-            success: false,
-            message: 'Stock check failed for one or more products. Please try again later.',
-          });
-        }
+    //     if (!stockCheck) {
+    //       return res.status(400).json({
+    //         success: false,
+    //         message: 'Stock check failed for one or more products. Please try again later.',
+    //       });
+    //     }
 
-        // Fetch the product
-        const product = await Product.findById(productId);
-        if (!product) {
-          return res.status(404).json({
-            success: false,
-            message: `Product with ID ${productId} not found.`,
-          });
-        }
+    //     // Fetch the product
+    //     const product = await Product.findById(productId);
+    //     if (!product) {
+    //       return res.status(404).json({
+    //         success: false,
+    //         message: `Product with ID ${productId} not found.`,
+    //       });
+    //     }
 
-        if (isVarient) {
-          // Decrease variant stock
-          const variant = product.Varient.find(
-            (v) => v._id.toString() === varient_type.id
-          );
-          if (!variant) {
-            return res.status(404).json({
-              success: false,
-              message: `Variant not found for product ID ${productId}.`,
-            });
-          }
+    //     if (isVarient) {
+    //       // Decrease variant stock
+    //       const variant = product.Varient.find(
+    //         (v) => v._id.toString() === varient_type.id
+    //       );
+    //       if (!variant) {
+    //         return res.status(404).json({
+    //           success: false,
+    //           message: `Variant not found for product ID ${productId}.`,
+    //         });
+    //       }
 
-          if (variant.stock_quantity < quantity) {
-            return res.status(400).json({
-              success: false,
-              message: `Insufficient stock for variant ${variant.quantity}.`,
-            });
-          }
+    //       if (variant.stock_quantity < quantity) {
+    //         return res.status(400).json({
+    //           success: false,
+    //           message: `Insufficient stock for variant ${variant.quantity}.`,
+    //         });
+    //       }
 
-          variant.stock_quantity -= quantity;
-        } else {
-          // Decrease main product stock
-          if (product.stock < quantity) {
-            return res.status(400).json({
-              success: false,
-              message: 'Insufficient stock for this product.',
-            });
-          }
+    //       variant.stock_quantity -= quantity;
+    //     } else {
+    //       // Decrease main product stock
+    //       if (product.stock < quantity) {
+    //         return res.status(400).json({
+    //           success: false,
+    //           message: 'Insufficient stock for this product.',
+    //         });
+    //       }
 
-          product.stock -= quantity;
-        }
+    //       product.stock -= quantity;
+    //     }
 
-        await product.save();
-      }
-    }
+    //     await product.save();
+    //   }
+    // }
 
 
 

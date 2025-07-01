@@ -17,7 +17,7 @@ const ProfileUpdate = () => {
     const fetchProfile = async () => {
         try {
             setLoading(true);
-            const { data } = await axios.get('https://www.api.nypers.in/api/v1/my-details', {
+            const { data } = await axios.get('https://api.nypers.in/v1/my-details', {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
@@ -54,7 +54,7 @@ const ProfileUpdate = () => {
         try {
             setLoading(true);
             const { data } = await axios.put(
-                'https://www.api.nypers.in/api/v1/update-user-profile',
+                'https://api.nypers.in/v1/update-user-profile',
                 formData,
                 {
                     headers: {

@@ -131,7 +131,7 @@ const EditProduct = () => {
 
   const fetchCategoryData = async () => {
     try {
-      const res = await axios.get('https://www.api.nypers.in/api/v1/admin/category')
+      const res = await axios.get('https://api.nypers.in/v1/admin/category')
       const data = res.data.categories
 
       console.log("sub", sub)
@@ -234,7 +234,7 @@ const EditProduct = () => {
 
   const handleFetchProductDetails = async () => {
     try {
-      const { data } = await axios.get(`https://www.api.nypers.in/api/v1/get-product/${id}`)
+      const { data } = await axios.get(`https://api.nypers.in/v1/get-product/${id}`)
 
       const productData = data?.data
       console.log("productData", productData)
@@ -312,7 +312,7 @@ const EditProduct = () => {
       });
   
       const { data } = await axios.post(
-        `https://www.api.nypers.in/api/v1/update-product/${id}`,
+        `https://api.nypers.in/v1/update-product/${id}`,
         formDataObject,
         {
           headers: {

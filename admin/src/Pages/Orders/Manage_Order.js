@@ -23,7 +23,7 @@ const ManageOrder = () => {
   const fetchOrders = async (page) => {
     try {
       setLoading(true);
-      const response = await axios.get("https://www.api.nypers.in/api/v1/admin/get-all-order", {
+      const response = await axios.get("https://api.nypers.in/v1/admin/get-all-order", {
         params: { page, limit: 6 },
       });
       const { data, totalPages } = response.data;
@@ -46,7 +46,7 @@ const ManageOrder = () => {
     try {
       console.log("orderId, status",orderId, status)
       setLoading(true);
-      const data = await axios.post("https://www.api.nypers.in/api/v1/admin/change-order-status", { orderId, status });
+      const data = await axios.post("https://api.nypers.in/v1/admin/change-order-status", { orderId, status });
       console.log(data)
       fetchOrders(currentPage);
     } catch (err) {
@@ -60,7 +60,7 @@ const ManageOrder = () => {
     if (window.confirm("Are you sure you want to delete this order?")) {
       try {
         setLoading(true);
-        await axios.delete(`https://www.api.nypers.in/api/v1/admin/delete-order/${orderId}`);
+        await axios.delete(`https://api.nypers.in/v1/admin/delete-order/${orderId}`);
         fetchOrders(currentPage);
         toast.success("Order deleted successfully");
       } catch (err) {
@@ -335,7 +335,7 @@ const ManageOrder = () => {
                       <option value="" disabled selected>
                         Select Action
                       </option>
-                      {['pending', 'confirmed', 'shipped', 'delivered', 'cancelled', 'returned', 'progress'].map(
+                      {['pending', 'confirmed', 'shipped', 'delivered', 'cancelled'].map(
                         (status) => (
                           <option key={status} value={status}>
                             Set to {status}
