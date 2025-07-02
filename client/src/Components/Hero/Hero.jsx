@@ -134,7 +134,7 @@ const Hero = () => {
 
                   {/* Shoe info overlay */}
                   <div className="absolute bottom-4 left-4 right-4 bg-black/50 backdrop-blur-sm rounded-xl p-4">
-                    <h3 className="text-xl font-bold text-white mb-2">{currentShoe.product_name}</h3>
+                    <Link to={`/product-page/${currentShoe._id}`} className="text-xl font-bold text-white mb-2">{currentShoe.product_name}</Link>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-2">
                         <span className="text-2xl font-bold text-white">
