@@ -13,6 +13,8 @@ const port = process.env.PORT;
 const corsOptions = {
     origin: [
         "http://localhost:5173",
+        "http://localhost:3000",
+        "http://localhost:3001",
         "http://localhost:5174",
         "https://nypers.in",
         "https://www.nypers.in",

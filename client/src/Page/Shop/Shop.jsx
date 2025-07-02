@@ -310,7 +310,7 @@ const Shop = () => {
                     <img
                         src={product.image}
                         alt={product.name}
-                        className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-700"
+                        className="w-full h-64 object-cover p-[10px] rounded-2xl"
                     />
 
                     {/* Badges */}
@@ -445,7 +445,7 @@ const Shop = () => {
 
     return (
         <div className="min-h-screen py-12">
-            <div className="container mx-auto px-6">
+            <div className="mx-auto px-6">
                 {/* Header */}
                 <div className="text-center mb-12">
                     <h1 className="text-4xl lg:text-5xl font-black text-gray-900 mb-4">

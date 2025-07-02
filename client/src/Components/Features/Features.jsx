@@ -13,14 +13,14 @@ const Features = () => {
                                 <Truck className="w-8 h-8 text-blue-600" />
                             </div>
                             <h3 className="text-lg font-bold text-gray-900 mb-2">Free Shipping</h3>
-                            <p className="text-gray-600">Free shipping on all orders over $100</p>
+                            <p className="text-gray-600">Free shipping on all orders over ₹500</p>
                         </div>
                         <div className="text-center group">
                             <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-green-200 transition-colors">
                                 <RotateCcw className="w-8 h-8 text-green-600" />
                             </div>
                             <h3 className="text-lg font-bold text-gray-900 mb-2">Easy Returns</h3>
-                            <p className="text-gray-600">30-day hassle-free return policy</p>
+                            <p className="text-gray-600">5-day hassle-free return policy</p>
                         </div>
                         <div className="text-center group">
                             <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-purple-200 transition-colors">

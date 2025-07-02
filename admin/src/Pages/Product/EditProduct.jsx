@@ -1,14 +1,14 @@
-import React, { useEffect, useState } from "react";
-import { FiChevronDown, FiChevronUp } from 'react-icons/fi';
-import axios from 'axios'
-import { useParams } from 'react-router-dom'
-import ImprovedLoader from "../../components/Layout/Loader";
+"use client"
 
-const Input = ({ label, type, name, value, onChange, className = "", readonly = false, placeholder = '' }) => (
+import { useEffect, useState } from "react"
+import { FiChevronDown, FiChevronUp } from "react-icons/fi"
+import axios from "axios"
+import { useParams } from "react-router-dom"
+import ImprovedLoader from "../../components/Layout/Loader"
+
+const Input = ({ label, type, name, value, onChange, className = "", readonly = false, placeholder = "" }) => (
   <div className={className}>
-    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-      {label}
-    </label>
+    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{label}</label>
     <input
       type={type}
       placeholder={placeholder}
@@ -19,13 +19,11 @@ const Input = ({ label, type, name, value, onChange, className = "", readonly = 
       className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white"
     />
   </div>
-);
+)
 
-const TextArea = ({ label, name, value, onChange, className = "", readonly = false, placeholder = '' }) => (
+const TextArea = ({ label, name, value, onChange, className = "", readonly = false, placeholder = "" }) => (
   <div className={className}>
-    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-      {label}
-    </label>
+    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{label}</label>
     <textarea
       rows={4}
       cols={5}
@@ -37,7 +35,7 @@ const TextArea = ({ label, name, value, onChange, className = "", readonly = fal
       className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white"
     />
   </div>
-);
+)
 
 const EditProduct = () => {
   const [formData, setFormData] = useState({
@@ -48,20 +46,20 @@ const EditProduct = () => {
     category: "",
     extra_description: "",
     tag: "",
-    color: [], // ✅ Added color field
+    color: [],
     isShowOnHomeScreen: false,
     ProductMainImage: null,
     SecondImage: null,
     ThirdImage: null,
     FourthImage: null,
     FifthImage: null,
-    price: '',
-    discount: '',
+    price: "",
+    discount: "",
     afterDiscountPrice: "",
-    stock: '',
-  });
-  
-  const [error, setError] = useState('')
+    stock: "",
+  })
+
+  const [error, setError] = useState("")
   const [images, setImages] = useState({
     first: null,
     second: null,
@@ -73,44 +71,57 @@ const EditProduct = () => {
   const [success, setSuccess] = useState(false)
   const [allCategory, setCategory] = useState([])
   const [selectedSubCategories, setSelectedSubCategories] = useState([])
-  const [sub, setSub] = useState('')
 
-  // ✅ Color management states
-  const [colorInput, setColorInput] = useState('')
+  // Color management states
+  const [colorInput, setColorInput] = useState("")
   const [availableColors] = useState([
-    'Red', 'Blue', 'Green', 'Yellow', 'Orange', 'Purple', 'Pink', 'Brown', 
-    'Black', 'White', 'Gray', 'Navy', 'Maroon', 'Teal', 'Olive', 'Silver'
+    "Red",
+    "Blue",
+    "Green",
+    "Yellow",
+    "Orange",
+    "Purple",
+    "Pink",
+    "Brown",
+    "Black",
+    "White",
+    "Gray",
+    "Navy",
+    "Maroon",
+    "Teal",
+    "Olive",
+    "Silver",
   ])
 
   const { id } = useParams()
-  const [isVariantOpen, setIsVariantOpen] = useState(true);
+  const [isVariantOpen, setIsVariantOpen] = useState(true)
 
-  // ✅ Color management functions
+  // Color management functions
   const handleAddColor = () => {
     if (colorInput.trim() && !formData.color.includes(colorInput.trim())) {
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
-        color: [...prev.color, colorInput.trim()]
-      }));
-      setColorInput('');
+        color: [...prev.color, colorInput.trim()],
+      }))
+      setColorInput("")
     }
-  };
+  }
 
   const handleRemoveColor = (colorToRemove) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      color: prev.color.filter(color => color !== colorToRemove)
-    }));
-  };
+      color: prev.color.filter((color) => color !== colorToRemove),
+    }))
+  }
 
   const handleColorSelect = (selectedColor) => {
     if (!formData.color.includes(selectedColor)) {
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
-        color: [...prev.color, selectedColor]
-      }));
+        color: [...prev.color, selectedColor],
+      }))
     }
-  };
+  }
 
   const handleAddVarients = () => {
     setFormData((prevData) => ({
@@ -123,27 +134,19 @@ const EditProduct = () => {
           discount_percentage: "",
           isStock: false,
           stock_quantity: "",
-          price_after_discount: "",
+          price_after_discount: "", // Fixed field name to match schema
         },
       ],
-    }));
-  };
+    }))
+  }
 
   const fetchCategoryData = async () => {
     try {
-      const res = await axios.get('https://api.nypers.in/api/v1/admin/category')
+      const res = await axios.get("https://api.nypers.in/api/v1/admin/category")
       const data = res.data.categories
 
-      console.log("sub", sub)
       if (data) {
         setCategory(data)
-      }
-      const category = data.find((c) => c._id === sub);
-      console.log("categorycategory", allCategory)
-      if (category) {
-        setSelectedSubCategories(category.SubCategory);
-      } else {
-        setSelectedSubCategories([]);
       }
     } catch (error) {
       console.log(error)
@@ -152,70 +155,81 @@ const EditProduct = () => {
   }
 
   const handleRemoveVarients = (index) => {
-    const updatedVarients = formData.Varient.filter((_, i) => i !== index);
+    const updatedVarients = formData.Varient.filter((_, i) => i !== index)
     setFormData((prevData) => ({
       ...prevData,
       Varient: updatedVarients,
-    }));
-  };
+    }))
+  }
 
   const calculateDiscountPrice = (price, priceDiscountPercentage) => {
-    const discountedPrice = price - (price * priceDiscountPercentage) / 100;
-    return discountedPrice;
-  };
+    const discountedPrice = price - (price * priceDiscountPercentage) / 100
+    return discountedPrice
+  }
 
   const handleInputChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    const newValue = type === 'checkbox' ? checked : value;
+    const { name, value, type, checked } = e.target
+    const newValue = type === "checkbox" ? checked : value
 
     setFormData((prevData) => {
       const updatedData = {
         ...prevData,
         [name]: newValue,
-      };
-
-      if (name === 'price' || name === 'discount') {
-        const price = name === 'price' ? newValue : updatedData.price;
-        const discount = name === 'discount' ? newValue : updatedData.discount;
-        const discountedPrice = calculateDiscountPrice(price, discount);
-        updatedData.afterDiscountPrice = discountedPrice;
       }
 
-      return updatedData;
-    });
-    
-    if (name === 'category') {
-      const selectedCategory = value;
-      const category = allCategory.find((c) => c._id === selectedCategory);
+      // Calculate discount price for main product (non-variant)
+      if (name === "price" || name === "discount") {
+        const price = Number.parseFloat(name === "price" ? newValue : updatedData.price) || 0
+        const discount = Number.parseFloat(name === "discount" ? newValue : updatedData.discount) || 0
+        const discountedPrice = calculateDiscountPrice(price, discount)
+        updatedData.afterDiscountPrice = discountedPrice.toFixed(2)
+      }
+
+      return updatedData
+    })
+
+    // Handle category selection
+    if (name === "category") {
+      const selectedCategory = value
+      const category = allCategory.find((c) => c._id === selectedCategory)
       if (category) {
-        setSelectedSubCategories(category.SubCategory);
+        setSelectedSubCategories(category.SubCategory || [])
       } else {
-        setSelectedSubCategories([]);
+        setSelectedSubCategories([])
       }
     }
-  };
+  }
 
+  // Fixed variant change handler with proper price_after_discount calculation
   const handleChange = (e, index) => {
-    const { name, value } = e.target;
-    const field = name.split('.').pop();
+    const { name, value } = e.target
+    const field = name.split(".").pop()
 
     setFormData((prevData) => {
-      const updatedVarients = [...prevData.Varient];
+      const updatedVarients = [...prevData.Varient]
       updatedVarients[index] = {
         ...updatedVarients[index],
         [field]: value,
-      };
+      }
+
+      // Calculate price_after_discount when price or discount_percentage changes
+      if (field === "price" || field === "discount_percentage") {
+        const price = Number.parseFloat(updatedVarients[index].price) || 0
+        const discount = Number.parseFloat(updatedVarients[index].discount_percentage) || 0
+        const discountedPrice = calculateDiscountPrice(price, discount)
+        updatedVarients[index].price_after_discount = discountedPrice.toFixed(2)
+      }
 
       return {
         ...prevData,
         Varient: updatedVarients,
-      };
-    });
-  };
+      }
+    })
+  }
 
   const handleFileChange = (e, imageType) => {
-    const file = e.target.files[0];
-    const reader = new FileReader();
+    const file = e.target.files[0]
+    const reader = new FileReader()
 
     reader.onloadend = () => {
       setFormData((prevData) => ({
@@ -224,30 +238,46 @@ const EditProduct = () => {
           file,
           previewUrl: reader.result,
         },
-      }));
-    };
+      }))
+    }
 
     if (file) {
-      reader.readAsDataURL(file);
+      reader.readAsDataURL(file)
     }
-  };
+  }
 
   const handleFetchProductDetails = async () => {
     try {
       const { data } = await axios.get(`https://api.nypers.in/api/v1/get-product/${id}`)
-
       const productData = data?.data
+
       console.log("productData", productData)
-      
-      // ✅ Handle color data - ensure it's always an array
+
+      // Handle color data - ensure it's always an array
       const processedProductData = {
         ...productData,
-        color: Array.isArray(productData?.color) ? productData.color : 
-               (productData?.color ? [productData.color] : [])
-      };
-      
-      setFormData(processedProductData);
-      
+        color: Array.isArray(productData?.color) ? productData.color : productData?.color ? [productData.color] : [],
+        // Fix category field - handle both string and object
+        category: productData?.category?._id || productData?.category || "",
+        // Ensure tag field is handled properly
+        tag: productData?.tag || "",
+        // Ensure price fields are strings for inputs
+        price: productData?.price?.toString() || "",
+        discount: productData?.discount?.toString() || "",
+        afterDiscountPrice: productData?.afterDiscountPrice?.toString() || "",
+        stock: productData?.stock?.toString() || "",
+        // Ensure variants have proper price_after_discount field
+        Varient:
+          productData?.Varient?.map((variant) => ({
+            ...variant,
+            price_after_discount:
+              variant.price_after_discount?.toString() ||
+              calculateDiscountPrice(variant.price || 0, variant.discount_percentage || 0).toFixed(2),
+          })) || [],
+      }
+
+      setFormData(processedProductData)
+
       if (productData) {
         setImages({
           first: {
@@ -257,13 +287,13 @@ const EditProduct = () => {
             previewUrl: productData?.SecondImage?.url,
           },
           third: {
-            previewUrl: productData?.ThirdImage?.url
+            previewUrl: productData?.ThirdImage?.url,
           },
           fourth: {
             previewUrl: productData?.FourthImage?.url,
           },
           fifth: {
-            previewUrl: productData?.FifthImage?.url
+            previewUrl: productData?.FifthImage?.url,
           },
         })
       }
@@ -274,74 +304,71 @@ const EditProduct = () => {
 
   useEffect(() => {
     fetchCategoryData()
-    handleFetchProductDetails()
-    setTimeout(() => {
-      console.log(formData)
-    }, 3000)
+  }, [])
+
+  useEffect(() => {
+    if (id) {
+      handleFetchProductDetails()
+    }
   }, [id])
 
   const handleSubmit = async () => {
-    setLoading(true);
-    const formDataObject = new FormData();
-  
+    setLoading(true)
+    const formDataObject = new FormData()
+
     try {
-      // ✅ Append category ID explicitly
-      formDataObject.append('category', formData.category?._id || '');
-      
-      // ✅ Handle color array - convert to comma-separated string for backend
+      // Append category ID explicitly
+      formDataObject.append("category", formData.category || "")
+
+      // Handle color array - convert to comma-separated string for backend
       if (formData.color && formData.color.length > 0) {
-        formDataObject.append('color', formData.color.join(','));
+        formDataObject.append("color", formData.color.join(","))
       }
-  
-      // ✅ Append the rest of the fields except category and color
+
+      // Append the rest of the fields except category and color
       Object.entries(formData).forEach(([key, value]) => {
-        if (value === null || value === undefined) return;
-  
+        if (value === null || value === undefined) return
         // Skip category and color to avoid double appending
-        if (key === 'category' || key === 'color') return;
-  
-        if (typeof value === 'object' && value.file) {
+        if (key === "category" || key === "color") return
+
+        if (typeof value === "object" && value.file) {
           // For file uploads like ProductMainImage
-          formDataObject.append(key, value.file);
-        } else if (key === 'Varient') {
+          formDataObject.append(key, value.file)
+        } else if (key === "Varient") {
           // Convert array of variants to JSON string
-          formDataObject.append(key, JSON.stringify(value));
+          formDataObject.append(key, JSON.stringify(value))
         } else {
-          formDataObject.append(key, value);
+          formDataObject.append(key, value)
         }
-      });
-  
-      const { data } = await axios.post(
-        `https://api.nypers.in/api/v1/update-product/${id}`,
-        formDataObject,
-        {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-        }
-      );
-  
+      })
+
+      const { data } = await axios.post(`https://api.nypers.in/api/v1/update-product/${id}`, formDataObject, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      })
+
       if (data.success) {
-        setSuccess(true);
-        setError('');
-        console.log('Product updated successfully');
+        setSuccess(true)
+        setError("")
+        console.log("Product updated successfully")
       } else {
-        setSuccess(false);
-        setError(data.message || 'Something went wrong');
+        setSuccess(false)
+        setError(data.message || "Something went wrong")
       }
-  
-      setLoading(false);
+
+      setLoading(false)
       setTimeout(() => {
-        setSuccess(false);
-        setError('');
-      }, 4000);
+        setSuccess(false)
+        setError("")
+      }, 4000)
     } catch (error) {
-      setLoading(false);
-      setSuccess(false);
-      setError(error.response?.data?.message || 'An error occurred. Please try again.');
-      console.error(error);
+      setLoading(false)
+      setSuccess(false)
+      setError(error.response?.data?.message || "An error occurred. Please try again.")
+      console.error(error)
     }
-  };
+  }
 
   if (loading) {
     return <ImprovedLoader loading={loading} />
@@ -353,11 +380,12 @@ const EditProduct = () => {
         {/* Success Modal */}
         <div className="bg-white p-6 rounded-lg shadow-lg text-center max-w-sm w-full">
           <h2 className="text-xl font-semibold text-green-500">Product Updated Successfully!</h2>
-          <p className="mt-4 text-gray-700">Your product has been updated successfully. You can now proceed with other actions.</p>
-
+          <p className="mt-4 text-gray-700">
+            Your product has been updated successfully. You can now proceed with other actions.
+          </p>
           <button
             onClick={() => {
-              setSuccess(false);
+              setSuccess(false)
             }}
             className="mt-6 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
           >
@@ -365,7 +393,7 @@ const EditProduct = () => {
           </button>
         </div>
       </div>
-    );
+    )
   }
 
   return (
@@ -380,18 +408,17 @@ const EditProduct = () => {
               label="Product Name"
               type="text"
               name="product_name"
-              value={formData?.product_name}
+              value={formData?.product_name || ""}
               onChange={handleInputChange}
             />
+
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Category
-              </label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Category</label>
               <select
                 name="category"
-                value={formData?.category || ''}
+                value={formData?.category || ""}
                 onChange={handleInputChange}
-                className="custom-select"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white"
               >
                 <option value="">Select Category</option>
                 {allCategory?.map((category) => (
@@ -400,21 +427,34 @@ const EditProduct = () => {
                   </option>
                 ))}
               </select>
+              {/* Debug info - remove in production */}
+              {/* <div className="text-xs text-gray-500 mt-1">
+                Selected: {formData?.category || "None"} | Available: {allCategory?.length || 0} categories
+              </div> */}
             </div>
+
             <Input
               label="Tag"
               type="text"
               name="tag"
-              value={formData?.tag}
+              value={formData?.tag || ""}
               onChange={handleInputChange}
               placeholder="Enter product tags"
             />
           </div>
 
-          {/* ✅ Color Management Section */}
+          {/* Debug section - remove in production */}
+          {/* <div className="bg-gray-100 p-4 rounded-md text-sm">
+            <h4 className="font-semibold">Debug Info:</h4>
+            <p>Tag Value: "{formData?.tag}"</p>
+            <p>Category Value: "{formData?.category}"</p>
+            <p>Categories Loaded: {allCategory?.length}</p>
+          </div> */}
+
+          {/* Color Management Section */}
           <div className="space-y-4">
             <h3 className="text-lg font-medium text-gray-900 dark:text-white">Product Colors</h3>
-            
+
             {/* Color Input */}
             <div className="flex gap-2">
               <input
@@ -445,8 +485,8 @@ const EditProduct = () => {
                     disabled={formData.color.includes(color)}
                     className={`px-3 py-1 text-sm rounded-full border transition-colors ${
                       formData.color.includes(color)
-                        ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                        : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-600'
+                        ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                        : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-600"
                     }`}
                   >
                     {color}
@@ -484,13 +524,13 @@ const EditProduct = () => {
             <TextArea
               label="Product Description"
               name="product_description"
-              value={formData?.product_description}
+              value={formData?.product_description || ""}
               onChange={handleInputChange}
             />
             <TextArea
               label="Extra Description"
               name="extra_description"
-              value={formData?.extra_description}
+              value={formData?.extra_description || ""}
               onChange={handleInputChange}
             />
           </div>
@@ -508,15 +548,20 @@ const EditProduct = () => {
                 />
                 <div className="relative">
                   <div
-                    className={`w-14 h-5 rounded-full transition duration-300 ease-in-out ${formData?.isVarient ? 'bg-indigo-600' : 'bg-gray-400'}`}
+                    className={`w-14 h-5 rounded-full transition duration-300 ease-in-out ${
+                      formData?.isVarient ? "bg-indigo-600" : "bg-gray-400"
+                    }`}
                   >
                     <div
-                      className={`absolute top-1 left-1 w-6 h-3 rounded-full bg-white shadow-md transition-transform duration-300 ease-in-out ${formData?.isVarient ? 'transform translate-x-6' : ''}`}
+                      className={`absolute top-1 left-1 w-6 h-3 rounded-full bg-white shadow-md transition-transform duration-300 ease-in-out ${
+                        formData?.isVarient ? "transform translate-x-6" : ""
+                      }`}
                     />
                   </div>
                 </div>
               </label>
             </div>
+
             <div className="border-black border-2  dark:border-gray-300 rounded-3xl px-12 py-3">
               <label className="flex items-center space-x-2 text-gray-700 dark:text-gray-300">
                 <span>Enable Home Screen Preview</span>
@@ -529,10 +574,14 @@ const EditProduct = () => {
                 />
                 <div className="relative">
                   <div
-                    className={`w-14 h-5 rounded-full transition duration-300 ease-in-out ${formData?.isShowOnHomeScreen ? 'bg-indigo-600' : 'bg-gray-400'}`}
+                    className={`w-14 h-5 rounded-full transition duration-300 ease-in-out ${
+                      formData?.isShowOnHomeScreen ? "bg-indigo-600" : "bg-gray-400"
+                    }`}
                   >
                     <div
-                      className={`absolute top-1 left-1 w-6 h-3 rounded-full bg-white shadow-md transition-transform duration-300 ease-in-out ${formData?.isShowOnHomeScreen ? 'transform translate-x-6' : ''}`}
+                      className={`absolute top-1 left-1 w-6 h-3 rounded-full bg-white shadow-md transition-transform duration-300 ease-in-out ${
+                        formData?.isShowOnHomeScreen ? "transform translate-x-6" : ""
+                      }`}
                     />
                   </div>
                 </div>
@@ -544,31 +593,31 @@ const EditProduct = () => {
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
               <Input
                 label="Price"
-                type="text"
+                type="number"
                 name="price"
-                value={formData?.price}
+                value={formData?.price || ""}
                 onChange={handleInputChange}
               />
               <Input
                 label="Discount"
-                type="text"
+                type="number"
                 name="discount"
-                value={formData?.discount}
+                value={formData?.discount || ""}
                 onChange={handleInputChange}
               />
               <Input
                 label="Final Price"
-                type="text"
+                type="number"
                 name="afterDiscountPrice"
                 readonly={true}
-                value={formData?.afterDiscountPrice}
+                value={formData?.afterDiscountPrice || ""}
                 onChange={handleInputChange}
               />
               <Input
                 label="Stock"
-                type="text"
+                type="number"
                 name="stock"
-                value={formData?.stock}
+                value={formData?.stock || ""}
                 onChange={handleInputChange}
               />
             </div>
@@ -625,12 +674,15 @@ const EditProduct = () => {
                         />
                       </div>
 
+                      {/* Display calculated price after discount */}
                       {variant.price && variant.discount_percentage && (
                         <div className="mt-4 p-3 bg-indigo-50 dark:bg-indigo-900/30 rounded-md">
                           <p className="text-sm text-indigo-700 dark:text-indigo-300">
                             Price After Discount:{" "}
                             <span className="font-semibold">
-                              Rs:{calculateDiscountPrice(variant.price, variant.discount_percentage)}
+                              Rs:{" "}
+                              {variant.price_after_discount ||
+                                calculateDiscountPrice(variant.price, variant.discount_percentage).toFixed(2)}
                             </span>
                           </p>
                         </div>
@@ -670,13 +722,13 @@ const EditProduct = () => {
                 <input
                   type="file"
                   accept="image/*"
-                  onChange={(e) => handleFileChange(e, 'ProductMainImage')}
+                  onChange={(e) => handleFileChange(e, "ProductMainImage")}
                   className="mt-1 block w-full text-sm text-gray-900 dark:text-gray-300 dark:bg-gray-800 dark:border-gray-600 file:py-2 file:px-4 file:rounded-md file:border-0 file:bg-blue-600 file:text-white hover:file:bg-blue-700"
                 />
-                {formData?.ProductMainImage && (
+                {(formData?.ProductMainImage || images.first) && (
                   <div className="mt-4">
                     <img
-                      src={formData?.ProductMainImage.previewUrl ? formData.ProductMainImage.previewUrl : images.first?.previewUrl}
+                      src={formData?.ProductMainImage?.previewUrl || images.first?.previewUrl}
                       alt="Preview"
                       className="w-full h-32 object-cover rounded-md"
                     />
@@ -692,13 +744,13 @@ const EditProduct = () => {
                 <input
                   type="file"
                   accept="image/*"
-                  onChange={(e) => handleFileChange(e, 'SecondImage')}
+                  onChange={(e) => handleFileChange(e, "SecondImage")}
                   className="mt-1 block w-full text-sm text-gray-900 dark:text-gray-300 dark:bg-gray-800 dark:border-gray-600 file:py-2 file:px-4 file:rounded-md file:border-0 file:bg-blue-600 file:text-white hover:file:bg-blue-700"
                 />
-                {formData?.SecondImage && (
+                {(formData?.SecondImage || images.second) && (
                   <div className="mt-4">
                     <img
-                      src={formData?.SecondImage.previewUrl ? formData.SecondImage.previewUrl : images.second?.previewUrl}
+                      src={formData?.SecondImage?.previewUrl || images.second?.previewUrl}
                       alt="Preview"
                       className="w-full h-32 object-cover rounded-md"
                     />
@@ -714,13 +766,13 @@ const EditProduct = () => {
                 <input
                   type="file"
                   accept="image/*"
-                  onChange={(e) => handleFileChange(e, 'ThirdImage')}
+                  onChange={(e) => handleFileChange(e, "ThirdImage")}
                   className="mt-1 block w-full text-sm text-gray-900 dark:text-gray-300 dark:bg-gray-800 dark:border-gray-600 file:py-2 file:px-4 file:rounded-md file:border-0 file:bg-blue-600 file:text-white hover:file:bg-blue-700"
                 />
-                {formData?.ThirdImage && (
+                {(formData?.ThirdImage || images.third) && (
                   <div className="mt-4">
                     <img
-                      src={formData?.ThirdImage.previewUrl ? formData.ThirdImage.previewUrl : images.third?.previewUrl}
+                      src={formData?.ThirdImage?.previewUrl || images.third?.previewUrl}
                       alt="Preview"
                       className="w-full h-32 object-cover rounded-md"
                     />
@@ -736,13 +788,13 @@ const EditProduct = () => {
                 <input
                   type="file"
                   accept="image/*"
-                  onChange={(e) => handleFileChange(e, 'FourthImage')}
+                  onChange={(e) => handleFileChange(e, "FourthImage")}
                   className="mt-1 block w-full text-sm text-gray-900 dark:text-gray-300 dark:bg-gray-800 dark:border-gray-600 file:py-2 file:px-4 file:rounded-md file:border-0 file:bg-blue-600 file:text-white hover:file:bg-blue-700"
                 />
-                {formData?.FourthImage && (
+                {(formData?.FourthImage || images.fourth) && (
                   <div className="mt-4">
                     <img
-                      src={formData?.FourthImage.previewUrl ? formData.FourthImage.previewUrl : images.fourth?.previewUrl}
+                      src={formData?.FourthImage?.previewUrl || images.fourth?.previewUrl}
                       alt="Preview"
                       className="w-full h-32 object-cover rounded-md"
                     />
@@ -758,13 +810,13 @@ const EditProduct = () => {
                 <input
                   type="file"
                   accept="image/*"
-                  onChange={(e) => handleFileChange(e, 'FifthImage')}
+                  onChange={(e) => handleFileChange(e, "FifthImage")}
                   className="mt-1 block w-full text-sm text-gray-900 dark:text-gray-300 dark:bg-gray-800 dark:border-gray-600 file:py-2 file:px-4 file:rounded-md file:border-0 file:bg-blue-600 file:text-white hover:file:bg-blue-700"
                 />
-                {formData?.FifthImage && (
+                {(formData?.FifthImage || images.fifth) && (
                   <div className="mt-4">
                     <img
-                      src={formData?.FifthImage.previewUrl ? formData.FifthImage.previewUrl : images.fifth?.previewUrl}
+                      src={formData?.FifthImage?.previewUrl || images.fifth?.previewUrl}
                       alt="Preview"
                       className="w-full h-32 object-cover rounded-md"
                     />
@@ -774,6 +826,8 @@ const EditProduct = () => {
             </div>
           </div>
 
+          {/* Error Display */}
+          {error && <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">{error}</div>}
 
           {/* Submit Button */}
           <div className="mt-8">
@@ -782,13 +836,13 @@ const EditProduct = () => {
               onClick={handleSubmit}
               className="px-6 py-3 bg-green-600 text-white font-medium rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
             >
-              Create Product
+              Update Product
             </button>
           </div>
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default EditProduct;
+export default EditProduct

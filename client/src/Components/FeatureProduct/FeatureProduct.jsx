@@ -122,7 +122,7 @@ const FeatureProduct = () => {
                                         <img
                                             src={product.ProductMainImage?.url}
                                             alt={product.product_name}
-                                            className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-700"
+                                            className="w-full h-64 object-cover p-[10px] rounded-2xl"
                                         />
                                         <div className="absolute top-4 left-4">
                                             <span className={`${badgeColor} text-white text-xs font-bold px-3 py-1 rounded-full`}>
