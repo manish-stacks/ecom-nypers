@@ -251,81 +251,131 @@ const Profile = () => {
                         )}
 
                         {activeTab === 'orders' && (
-                            <div className="bg-white rounded-2xl shadow-lg p-8">
-                                <h2 className="text-2xl font-bold text-gray-900 mb-6">Order History</h2>
+    <div className="bg-white rounded-2xl shadow-lg p-8">
+        <h2 className="text-2xl font-bold text-gray-900 mb-6">Order History</h2>
 
-                                {orders.length === 0 ? (
-                                    <div className="text-center py-12">
-                                        <Package className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                                        <p className="text-gray-500">No orders found</p>
+        {orders.length === 0 ? (
+            <div className="text-center py-12">
+                <Package className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                <p className="text-gray-500">No orders found</p>
+            </div>
+        ) : (
+            <div className="space-y-4">
+                {orders && (Array.isArray(orders) ? orders : [orders]).map((order) => (
+                    <div key={order._id} className="border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow">
+                        {/* Header */}
+                        <div className="flex items-center justify-between mb-4">
+                            <div className="flex items-center space-x-4">
+                                <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                                    <Package className="w-6 h-6 text-black" />
+                                </div>
+                                <div>
+                                    <h3 className="font-semibold text-gray-900">Order #{order.orderId}</h3>
+                                    <p className="text-sm text-gray-500">
+                                        {formatDate(order.orderDate)} • {order.totalquantity} item{order.totalquantity > 1 ? 's' : ''}
+                                    </p>
+                                </div>
+                            </div>
+                            <div className="text-right">
+                                <p className="text-lg font-semibold text-gray-900">₹{order.totalAmount}</p>
+                                <span className={`inline-flex px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(order.status)}`}>
+                                    {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+                                </span>
+                            </div>
+                        </div>
+
+                        {/* Offer Details - Show only if offer exists */}
+                        {order.offerId && (
+                            <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
+                                <div className="flex items-center mb-2">
+                                    <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center mr-3">
+                                        <span className="text-green-600 font-bold text-sm">%</span>
                                     </div>
-                                ) : (
-                                    <div className="space-y-4">
-                                        {orders && (Array.isArray(orders) ? orders : [orders]).map((order) => (
-                                            <div key={order._id} className="border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow">
-                                                {/* Header */}
-                                                <div className="flex items-center justify-between mb-4">
-                                                    <div className="flex items-center space-x-4">
-                                                        <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                                                            <Package className="w-6 h-6 text-black" />
-                                                        </div>
-                                                        <div>
-                                                            <h3 className="font-semibold text-gray-900">Order #{order.orderId}</h3>
-                                                            <p className="text-sm text-gray-500">
-                                                                {formatDate(order.orderDate)} • {order.totalquantity} item{order.totalquantity > 1 ? 's' : ''}
-                                                            </p>
-                                                        </div>
-                                                    </div>
-                                                    <div className="text-right">
-                                                        <p className="text-lg font-semibold text-gray-900">₹{order.totalAmount}</p>
-                                                        <span className={`inline-flex px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(order.status)}`}>
-                                                            {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
-                                                        </span>
-                                                    </div>
-                                                </div>
-
-                                                {/* Product Items */}
-                                                <div className="space-y-4 mb-4">
-                                                    {order.items.map((item, idx) => (
-                                                        <div key={idx} className="border border-gray-100 rounded-md p-4 bg-gray-50">
-                                                            <h4 className="font-medium text-gray-800">{item.name}</h4>
-                                                            <p className="text-sm text-gray-600">Color: {item.color} | Size: {item.size}</p>
-                                                            <p className="text-sm text-gray-600">Price: ₹{item.price} × {item.quantity}</p>
-                                                        </div>
-                                                    ))}
-                                                </div>
-
-                                                {/* Summary Info */}
-                                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-                                                    <div className="flex items-center">
-                                                        <CreditCard className="w-4 h-4 text-gray-400 mr-2" />
-                                                        <span className="text-gray-600">Payment: {order.paymentType}</span>
-                                                    </div>
-
-                                                    <div className="flex items-center">
-                                                        <Clock className="w-4 h-4 text-gray-400 mr-2" />
-                                                        <span className="text-gray-600">Status: {order.status}</span>
-                                                    </div>
-
-                                                    <div className="flex items-center">
-                                                        <Truck className="w-4 h-4 text-gray-400 mr-2" />
-                                                        <span className="text-gray-600">Amount: ₹{order.payAmt}</span>
-                                                    </div>
-                                                </div>
-
-                                                {/* Transaction ID */}
-                                                {order.paymentType === 'ONLINE' && order.transactionId && (
-                                                    <div className="mt-4 text-sm text-gray-700">
-                                                        <strong>Transaction ID:</strong> {order.transactionId}
-                                                    </div>
-                                                )}
-                                            </div>
-                                        ))}
-
+                                    <h4 className="font-medium text-green-800">Offer Applied</h4>
+                                </div>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                                    <div>
+                                        <span className="text-green-700 font-medium">Code: </span>
+                                        <span className="text-green-800 font-semibold">{order.offerId.code}</span>
                                     </div>
-                                )}
+                                    <div>
+                                        <span className="text-green-700 font-medium">Discount: </span>
+                                        <span className="text-green-800 font-semibold">{order.offerId.discount}%</span>
+                                    </div>
+                                    <div>
+                                        <span className="text-green-700 font-medium">Min Order: </span>
+                                        <span className="text-green-800">₹{order.offerId.minimumOrderAmount}</span>
+                                    </div>
+                                    <div>
+                                        <span className="text-green-700 font-medium">Savings: </span>
+                                        <span className="text-green-800 font-semibold">₹{(order.totalAmount - order.payAmt).toFixed(2)}</span>
+                                    </div>
+                                </div>
                             </div>
                         )}
+
+                        {/* Product Items */}
+                        <div className="space-y-4 mb-4">
+                            {order.items.map((item, idx) => (
+                                <div key={idx} className="border border-gray-100 rounded-md p-4 bg-gray-50">
+                                    <h4 className="font-medium text-gray-800">{item.name}</h4>
+                                    <p className="text-sm text-gray-600">Color: {item.color} | Size: {item.size}</p>
+                                    <p className="text-sm text-gray-600">Price: ₹{item.price} × {item.quantity}</p>
+                                </div>
+                            ))}
+                        </div>
+
+                        {/* Summary Info */}
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                            <div className="flex items-center">
+                                <CreditCard className="w-4 h-4 text-gray-400 mr-2" />
+                                <span className="text-gray-600">Payment: {order.paymentType}</span>
+                            </div>
+
+                            <div className="flex items-center">
+                                <Clock className="w-4 h-4 text-gray-400 mr-2" />
+                                <span className="text-gray-600">Status: {order.status}</span>
+                            </div>
+
+                            <div className="flex items-center">
+                                <Truck className="w-4 h-4 text-gray-400 mr-2" />
+                                <span className="text-gray-600">Final Amount: ₹{order.payAmt}</span>
+                            </div>
+                        </div>
+
+                        {/* Price Breakdown - Show when offer is applied */}
+                        {order.offerId && (
+                            <div className="mt-4 pt-4 border-t border-gray-200">
+                                <h5 className="font-medium text-gray-800 mb-2">Price Breakdown</h5>
+                                <div className="space-y-1 text-sm">
+                                    <div className="flex justify-between">
+                                        <span className="text-gray-600">Subtotal:</span>
+                                        <span className="text-gray-800">₹{order.totalAmount}</span>
+                                    </div>
+                                    <div className="flex justify-between text-green-600">
+                                        <span>Discount ({order.offerId.discount}%):</span>
+                                        <span>-₹{(order.totalAmount - order.payAmt).toFixed(2)}</span>
+                                    </div>
+                                    <div className="flex justify-between font-semibold text-gray-900 pt-1 border-t">
+                                        <span>Final Amount:</span>
+                                        <span>₹{order.payAmt}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Transaction ID */}
+                        {order.paymentType === 'ONLINE' && order.transactionId && (
+                            <div className="mt-4 text-sm text-gray-700">
+                                <strong>Transaction ID:</strong> {order.transactionId}
+                            </div>
+                        )}
+                    </div>
+                ))}
+            </div>
+        )}
+    </div>
+)}
 
                         {activeTab === 'settings' && (
                             <div className="space-y-6">

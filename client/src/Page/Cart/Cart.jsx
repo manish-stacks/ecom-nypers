@@ -62,13 +62,15 @@ const CartPage = () => {
 
   const applyPromoCode = async () => {
     setCouponError("")
+    // console.log("i am hit")
     try {
       const response = await axios.post("https://api.nypers.in/api/v1/apply-coupon", {
         code: promoCode,
         orderAmount: cartSubtotal,
       })
 
-      const { discountAmount: discount, finalAmount } = response.data
+      const { discountAmount: discount, finalAmount,appliedCoupon } = response.data
+      // console.log("appliedCoupon",appliedCoupon)
       setPromoApplied(true)
       setDiscountAmount(discount)
 
@@ -79,6 +81,7 @@ const CartPage = () => {
         discountAmount: discount,
         originalAmount: cartSubtotal,
         finalAmount: finalAmount,
+        offerId: appliedCoupon._id
       }
       sessionStorage.setItem("appliedCoupon", JSON.stringify(couponData))
     } catch (error) {

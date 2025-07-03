@@ -21,6 +21,7 @@ const orderSchema = new Schema({
             name: { type: String, required: true },
             quantity: { type: Number, required: true },
             price: { type: Number, required: true },
+            Varient_id: { type: String, required: true },
             _id: false,
         },
     ],
@@ -43,7 +44,7 @@ const orderSchema = new Schema({
     transactionId: { type: String },
     offerId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Offer',
+        ref: 'Coupon',
     },
     shipping: {
         addressLine: { type: String, required: true },
@@ -73,6 +74,14 @@ const orderSchema = new Schema({
     OrderProcessRating: {
         type: Number,
         default: 0
+    },
+    refundRequest: {
+        type: Boolean,
+        default: false
+    },
+    refundReason: {
+        type: String,
+        default: ''
     },
 
 }, { timestamps: true });

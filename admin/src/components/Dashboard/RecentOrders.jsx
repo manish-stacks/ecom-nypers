@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Tag } from "lucide-react"
 
 export default function RecentOrders({ orders }) {
   const [currentPage, setCurrentPage] = useState(1); // State for the current page
@@ -31,6 +32,8 @@ export default function RecentOrders({ orders }) {
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Customer</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Product</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Amount</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Offer</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Payment</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Status</th>
               </tr>
             </thead>
@@ -39,10 +42,39 @@ export default function RecentOrders({ orders }) {
                 <tr key={index}>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 underline dark:text-white"><a href={`/order/${order.orderId}`}>{order.orderId}</a></td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{order.userId?.Name}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                    {order.items?.map((item) => item.name).join(', ')}
+                  <td
+                    className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400"
+                    dangerouslySetInnerHTML={{
+                      __html: order.items?.map((item) => item.name).join('<br />')
+                    }}
+                  ></td>
+
+                  <td className="px-4 py-2 text-sm text-gray-900">
+                    <div className="flex flex-col">
+                      {order.offerId ? (
+                        <>
+                          <span className="text-gray-500 line-through text-xs">₹{order.totalAmount.toFixed(2)}</span>
+                          <span className="text-green-600 font-medium">₹{order.payAmt.toFixed(2)}</span>
+                        </>
+                      ) : (
+                        <span className="font-medium text-gray-500">₹{order.payAmt.toFixed(2)}</span>
+                      )}
+                    </div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{order.payAmt}</td>
+                  <td className="px-4 py-2 text-sm">
+                    {order.offerId ? (
+                      <div className="flex items-center gap-2">
+                        <Tag className="w-4 h-4 text-green-500" />
+                        <div className="flex flex-col">
+                          <span className="text-green-600 font-medium text-xs">{order.offerId.code}</span>
+                          <span className="text-gray-500 text-xs">{order.offerId.discount}% off</span>
+                        </div>
+                      </div>
+                    ) : (
+                      <span className="text-gray-400 text-xs">No offer</span>
+                    )}
+                  </td>
+                  <td className="px-4 py-2 text-sm text-gray-500">{order.paymentType}</td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${order.status === 'delivered' ? 'bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-400' :
                       order.status === 'confirmed' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-400' :

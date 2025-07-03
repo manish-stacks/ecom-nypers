@@ -3,11 +3,12 @@ import { ArrowLeft, MapPin, CreditCard, Smartphone, CheckCircle, Loader, AlertCi
 import axios from "axios"
 
 const CheckoutFlow = () => {
-  const [setting,setSetting] = useState({})
+  const [setting, setSetting] = useState({})
   const [currentStep, setCurrentStep] = useState(1)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
   const [success, setSuccess] = useState(false)
+  const [couponCodeId, setCouponCodeId] = useState("")
 
   // Cart and user data
   const [cartItems, setCartItems] = useState([])
@@ -28,13 +29,13 @@ const CheckoutFlow = () => {
     postCode: "",
     mobileNumber: "",
   })
-  
-  const [qrCodeUrl,setQRCodeUrl] = useState("")
+
+  const [qrCodeUrl, setQRCodeUrl] = useState("")
 
   const handleFetchSetting = async () => {
     try {
-      const {data} = await axios.get("https://api.nypers.in/api/v1/admin/settings")
-      console.log("data.data.paymentImage",data.data.paymentImage)
+      const { data } = await axios.get("https://api.nypers.in/api/v1/admin/settings")
+      console.log("data.data.paymentImage", data.data.paymentImage)
       setQRCodeUrl(data.data.paymentImage)
     } catch (error) {
       console.error("Error fetching setting:", error)
@@ -55,7 +56,7 @@ const CheckoutFlow = () => {
     // Load cart items and user data
     const storedCart = JSON.parse(sessionStorage.getItem("cartItems") || "[]")
     const token = sessionStorage.getItem("token_login")
-    console.log("token",token)
+    console.log("token", token)
 
     // Load applied coupon data
     const storedCoupon = sessionStorage.getItem("appliedCoupon")
@@ -77,6 +78,7 @@ const CheckoutFlow = () => {
       setDiscountAmount(couponData.discountAmount)
       // Calculate total with discount
       setOrderTotal(subtotal - couponData.discountAmount + shippingCost)
+      setCouponCodeId(couponData.offerId)
     } else {
       // Calculate total without discount
       setOrderTotal(subtotal + shippingCost)
@@ -94,7 +96,7 @@ const CheckoutFlow = () => {
         headers: { Authorization: `Bearer ${token}` },
       })
       const data = await response.json()
-      console.log("data",data)
+      console.log("data", data)
       setUser(data.data)
     } catch (error) {
       console.error("Error fetching user details:", error)
@@ -132,7 +134,7 @@ const CheckoutFlow = () => {
 
     try {
       const token = sessionStorage.getItem("token_login")
-        console.log("cartItem",cartItems)
+      console.log("cartItem", cartItems)
       // Prepare order data with coupon information
       const orderData = {
         items: cartItems.map((item) => ({
@@ -140,7 +142,7 @@ const CheckoutFlow = () => {
           product_name: item.product_name,
           Qunatity: item.quantity,
           price_after_discount: item.price,
-          variantId: item.variantId || null,
+          Varient_id: item.variantId || null,
           variant: item.variant || "",
           size: item.size,
           color: item.color,
@@ -155,7 +157,7 @@ const CheckoutFlow = () => {
         couponCode: appliedCoupon ? appliedCoupon.code : null,
         transactionId: paymentMethod === "ONLINE" ? transactionId : null,
       }
-
+      console.log("orderData", orderData)
       const response = await fetch("https://api.nypers.in/api/v1/add-order", {
         method: "POST",
         headers: {
@@ -267,18 +269,17 @@ const CheckoutFlow = () => {
               const StepIcon = stepLabels[step].icon
               const isActive = step === currentStep
               const isCompleted = step < currentStep
-              
+
               return (
                 <div key={step} className="flex items-center">
                   <div className="relative">
                     <div
-                      className={`w-12 h-12 rounded-full flex items-center justify-center text-sm font-bold transition-all duration-300 ${
-                        isActive
+                      className={`w-12 h-12 rounded-full flex items-center justify-center text-sm font-bold transition-all duration-300 ${isActive
                           ? `bg-gradient-to-r ${stepLabels[step].color} text-white shadow-lg scale-110`
                           : isCompleted
-                          ? "bg-emerald-500 text-white shadow-md"
-                          : "bg-gray-200 text-gray-600"
-                      }`}
+                            ? "bg-emerald-500 text-white shadow-md"
+                            : "bg-gray-200 text-gray-600"
+                        }`}
                     >
                       {isCompleted ? (
                         <CheckCircle size={20} />
@@ -291,9 +292,8 @@ const CheckoutFlow = () => {
                     )}
                   </div>
                   {step < 4 && (
-                    <div className={`w-20 h-1 mx-4 rounded-full transition-all duration-500 ${
-                      step < currentStep ? "bg-gradient-to-r from-emerald-400 to-emerald-500" : "bg-gray-200"
-                    }`} />
+                    <div className={`w-20 h-1 mx-4 rounded-full transition-all duration-500 ${step < currentStep ? "bg-gradient-to-r from-emerald-400 to-emerald-500" : "bg-gray-200"
+                      }`} />
                   )}
                 </div>
               )
@@ -558,8 +558,8 @@ const CheckoutFlow = () => {
                         {appliedCoupon.code}
                       </p>
                     </div>
-                    <button 
-                      onClick={removeCoupon} 
+                    <button
+                      onClick={removeCoupon}
                       className="text-red-600 hover:text-red-700 hover:bg-red-100 p-2 rounded-full transition-all duration-200"
                     >
                       <X size={16} />
@@ -649,11 +649,10 @@ const CheckoutFlow = () => {
                     <CreditCard className="w-5 h-5 mr-2 text-purple-600" />
                     Payment Method
                   </h4>
-                  <div className={`rounded-2xl p-4 border-2 ${
-                    paymentMethod === "ONLINE" 
-                      ? "bg-gradient-to-r from-blue-50 to-cyan-50 border-blue-200" 
+                  <div className={`rounded-2xl p-4 border-2 ${paymentMethod === "ONLINE"
+                      ? "bg-gradient-to-r from-blue-50 to-cyan-50 border-blue-200"
                       : "bg-gradient-to-r from-green-50 to-emerald-50 border-green-200"
-                  }`}>
+                    }`}>
                     <p className="text-sm font-semibold text-gray-800 flex items-center">
                       {paymentMethod === "ONLINE" ? (
                         <>

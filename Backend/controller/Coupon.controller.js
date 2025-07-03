@@ -135,6 +135,7 @@ exports.applyCoupon = async (req, res) => {
             discount: coupon.discount,
             discountAmount,
             finalAmount,
+            appliedCoupon: coupon
         });
     } catch (error) {
         console.error(error);

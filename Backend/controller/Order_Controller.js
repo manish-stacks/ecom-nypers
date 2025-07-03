@@ -16,11 +16,12 @@ async function toCheckStock(product_id, stock, isVarientTrue = false, Varient_id
       throw new Error('Product Not Found');
     }
 
-    if (isVarientTrue === false) {
-      if (product.stock < stock) {
-        throw new Error(`Not enough stock for the product: ${product.name}. Available stock: ${product.stock}`);
-      }
-    } else {
+    // if (isVarientTrue === false) {
+    //   if (product.stock < stock) {
+    //     throw new Error(`Not enough stock for the product: ${product.name}. Available stock: ${product.stock}`);
+    //   }
+    // } else {
+    console.log("Varient_id",Varient_id)
       const varient = product.Varient.find((item) => item._id.toString() === Varient_id);
       if (!varient) {
         throw new Error('Variant Not Found');
@@ -28,8 +29,8 @@ async function toCheckStock(product_id, stock, isVarientTrue = false, Varient_id
       if (varient.stock_quantity < stock) {
         throw new Error(`Not enough stock for the variant: ${varient.quantity}. Available stock: ${varient.stock_quantity}`);
       }
-    }
-
+    // }
+      console.log("i have stock")
     return true;
   } catch (error) {
     throw new Error(error.message);
@@ -66,11 +67,11 @@ exports.createOrderOfProduct = async (req, res) => {
     const { items, totalAmount, payAmt, isVarientInCart, paymentType, offerId, shipping, transactionId } = req.body;
     console.log("item", items)
     for (let item of items) {
-      const { product_id, Qunatity, variantId } = item;
+      const { product_id, Qunatity, Varient_id } = item;
 
-      const isVarientTrue = isVarientInCart && variantId ? true : false;
+      const isVarientTrue = isVarientInCart && Varient_id ? true : false;
 
-      const stockCheck = await toCheckStock(product_id, Qunatity, isVarientTrue, variantId);
+      const stockCheck = await toCheckStock(product_id, Qunatity, isVarientTrue, Varient_id);
 
       if (!stockCheck) {
         return res.status(400).json({
@@ -81,7 +82,7 @@ exports.createOrderOfProduct = async (req, res) => {
     }
     const orderItems = items.map(item => ({
       productId: item.product_id,
-      // varientId: item.variantId,
+      Varient_id: item.Varient_id,
       // varient_type: {
       //   id: item.variantId || null,
       //   text: item.variant || ''
@@ -302,73 +303,73 @@ exports.ChangeOrderStatus = async (req, res) => {
       });
     }
 
-    // if (status === 'confirmed') {
-    //   for (const item of Order.items) {
-    //     console.log("item",item)
-    //     const { productId, quantity, varient_type } = item;
-    //     console.log("productId, quantity, varient_type",productId, quantity, varient_type)
+    if (status === 'confirmed') {
+      for (const item of Order.items) {
+        console.log("item",item)
+        const { productId, quantity, varient_type, Varient_id } = item;
+        console.log("productId, quantity, varient_type",productId, quantity, varient_type, Varient_id)
 
-    //     const isVarient = !!(varient_type && varient_type.id);
+        const isVarient = true;
 
-    //     // Check available stock
-    //     const stockCheck = await toCheckStock(
-    //       productId,
-    //       quantity,
-    //       isVarient,
-    //       varient_type?.id
-    //     );
+        // Check available stock
+        const stockCheck = await toCheckStock(
+          productId,
+          quantity,
+          isVarient,
+          Varient_id
+        );
 
-    //     if (!stockCheck) {
-    //       return res.status(400).json({
-    //         success: false,
-    //         message: 'Stock check failed for one or more products. Please try again later.',
-    //       });
-    //     }
+        if (!stockCheck) {
+          return res.status(400).json({
+            success: false,
+            message: 'Stock check failed for one or more products. Please try again later.',
+          });
+        }
 
-    //     // Fetch the product
-    //     const product = await Product.findById(productId);
-    //     if (!product) {
-    //       return res.status(404).json({
-    //         success: false,
-    //         message: `Product with ID ${productId} not found.`,
-    //       });
-    //     }
+        // Fetch the product
+        const product = await Product.findById(productId);
+        if (!product) {
+          return res.status(404).json({
+            success: false,
+            message: `Product with ID ${productId} not found.`,
+          });
+        }
 
-    //     if (isVarient) {
-    //       // Decrease variant stock
-    //       const variant = product.Varient.find(
-    //         (v) => v._id.toString() === varient_type.id
-    //       );
-    //       if (!variant) {
-    //         return res.status(404).json({
-    //           success: false,
-    //           message: `Variant not found for product ID ${productId}.`,
-    //         });
-    //       }
+        if (isVarient) {
+          // Decrease variant stock
+          const variant = product.Varient.find(
+            (v) => v._id.toString() === Varient_id
+          );
+          if (!variant) {
+            return res.status(404).json({
+              success: false,
+              message: `Variant not found for product ID ${productId}.`,
+            });
+          }
 
-    //       if (variant.stock_quantity < quantity) {
-    //         return res.status(400).json({
-    //           success: false,
-    //           message: `Insufficient stock for variant ${variant.quantity}.`,
-    //         });
-    //       }
+          if (variant.stock_quantity < quantity) {
+            return res.status(400).json({
+              success: false,
+              message: `Insufficient stock for variant ${variant.quantity}.`,
+            });
+          }
 
-    //       variant.stock_quantity -= quantity;
-    //     } else {
-    //       // Decrease main product stock
-    //       if (product.stock < quantity) {
-    //         return res.status(400).json({
-    //           success: false,
-    //           message: 'Insufficient stock for this product.',
-    //         });
-    //       }
+          variant.stock_quantity -= quantity;
+        } else {
+          // Decrease main product stock
+          if (product.stock < quantity) {
+            return res.status(400).json({
+              success: false,
+              message: 'Insufficient stock for this product.',
+            });
+          }
 
-    //       product.stock -= quantity;
-    //     }
+          product.stock -= quantity;
+        }
 
-    //     await product.save();
-    //   }
-    // }
+        await product.save();
+      }
+    }
 
 
 
@@ -463,6 +464,7 @@ exports.getAllOrder = async (req, res) => {
     const limits = limit;
     const orders = await Ordermodel.find(query)
       .populate('userId')
+      .populate('offerId')
       .skip((page - 1) * limits)
       .limit(limits)
       .sort({ createdAt: -1 })
@@ -525,7 +527,7 @@ exports.getOrderByOrderIdAdmin = async (req, res) => {
     const orderId = req.params.orderId;
     const order = await Ordermodel.findOne({
       orderId: orderId
-    }).populate('userId');
+    }).populate('userId').populate('offerId');
 
     if (!order) {
       return res.status(404).json({
@@ -554,7 +556,7 @@ exports.getRecentsOrders = async (req, res) => {
   try {
     const recentOrders = await Ordermodel.find({
       orderDate: { $gte: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000) }
-    }).populate('userId').sort({ orderDate: -1 });
+    }).populate('userId').populate('offerId').sort({ orderDate: -1 });
 
     res.status(200).json({ message: 'Recent Orders fetched successfully', data: recentOrders });
   } catch (error) {
@@ -737,7 +739,7 @@ exports.getMyAllOrder = async (req, res) => {
     }
 
     // Find the latest order for the user
-    const order = await Ordermodel.find({ userId: user }).sort({ createdAt: -1 });
+    const order = await Ordermodel.find({ userId: user }).populate('offerId').sort({ createdAt: -1 });
 
     if (!order) {
       return res.status(404).json({
@@ -1168,3 +1170,16 @@ exports.deleteOrder = async (req, res) => {
 
   }
 }
+
+// exports.refundOrder = async (req, res) => {
+//   try {
+    
+//   } catch (error) {
+//     console.log("Internal server error",error)
+//     res.status(500).json({
+//       success: false,
+//       message: "Internal server error",
+//       error: error.message
+//     })
+//   }
+// }

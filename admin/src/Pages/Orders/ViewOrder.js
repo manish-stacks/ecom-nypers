@@ -9,8 +9,9 @@ import {
   MapPin,
   Star,
   RefreshCw,
+  Tag,
+  Percent,
 } from "lucide-react";
-import axios from "axios";
 
 const ViewOrder = () => {
   const { id } = useParams();
@@ -22,9 +23,8 @@ const ViewOrder = () => {
     const fetchOrder = async () => {
       try {
         setLoading(true);
-        const { data } = await axios.get(
-          `https://api.nypers.in/api/v1/recent-order/${id}`
-        );
+        const response = await fetch(`https://api.nypers.in/api/v1/recent-order/${id}`);
+        const data = await response.json();
         setOrderData(data.data);
       } catch (err) {
         console.error(err);
@@ -92,12 +92,24 @@ const ViewOrder = () => {
             {formatDate(orderData.orderDate)}
           </p>
         </div>
-        <div
-          className={`px-4 py-2 rounded-full ${getStatusColor(
-            orderData.status
-          )}`}
-        >
-          <span className="font-medium capitalize">{orderData.status}</span>
+        <div className="flex items-center gap-3">
+          {orderData.offerId && (
+            <div className="bg-green-50 border border-green-200 px-3 py-2 rounded-lg">
+              <div className="flex items-center gap-2">
+                <Tag className="w-4 h-4 text-green-600" />
+                <span className="text-green-700 font-medium text-sm">
+                  {orderData.offerId.code}
+                </span>
+              </div>
+            </div>
+          )}
+          <div
+            className={`px-4 py-2 rounded-full ${getStatusColor(
+              orderData.status
+            )}`}
+          >
+            <span className="font-medium capitalize">{orderData.status}</span>
+          </div>
         </div>
       </div>
 
@@ -191,6 +203,63 @@ const ViewOrder = () => {
         </div>
       </div>
 
+      {/* Offer Details - Only show if offer exists */}
+      {orderData.offerId && (
+        <div className="bg-gradient-to-r from-green-50 to-green-100 rounded-lg shadow-sm border border-green-200">
+          <div className="p-6">
+            <div className="flex items-center mb-4">
+              <Tag className="w-5 h-5 text-green-600 mr-2" />
+              <h2 className="text-lg font-semibold text-green-800">Offer Applied</h2>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="bg-white p-4 rounded-lg border border-green-200">
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-600 font-medium">Offer Code</span>
+                  <Tag className="w-4 h-4 text-green-600" />
+                </div>
+                <p className="text-green-700 font-bold text-lg mt-1">
+                  {orderData.offerId.code}
+                </p>
+              </div>
+              <div className="bg-white p-4 rounded-lg border border-green-200">
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-600 font-medium">Discount</span>
+                  <Percent className="w-4 h-4 text-green-600" />
+                </div>
+                <p className="text-green-700 font-bold text-lg mt-1">
+                  {orderData.offerId.discount}% OFF
+                </p>
+              </div>
+              <div className="bg-white p-4 rounded-lg border border-green-200">
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-600 font-medium">Min. Amount</span>
+                  <CreditCard className="w-4 h-4 text-green-600" />
+                </div>
+                <p className="text-green-700 font-bold text-lg mt-1">
+                  ₹{orderData.offerId.minimumOrderAmount}
+                </p>
+              </div>
+              <div className="bg-white p-4 rounded-lg border border-green-200">
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-600 font-medium">You Saved</span>
+                  <Star className="w-4 h-4 text-green-600" />
+                </div>
+                <p className="text-green-700 font-bold text-lg mt-1">
+                  ₹{(orderData.totalAmount - orderData.payAmt).toFixed(2)}
+                </p>
+              </div>
+            </div>
+            {orderData.offerId.expirationDate && (
+              <div className="mt-4 p-3 bg-green-100 rounded-lg">
+                <p className="text-green-700 text-sm">
+                  <strong>Valid Until:</strong> {new Date(orderData.offerId.expirationDate).toLocaleDateString()}
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* Order Items */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200">
         <div className="p-6 border-b border-gray-200">
@@ -248,14 +317,27 @@ const ViewOrder = () => {
                 <span className="text-gray-600">Subtotal</span>
                 <span>₹{orderData.totalAmount}</span>
               </div>
+              {orderData.offerId && (
+                <div className="flex justify-between text-green-600">
+                  <span>Discount ({orderData.offerId.discount}%)</span>
+                  <span>-₹{(orderData.totalAmount - orderData.payAmt).toFixed(2)}</span>
+                </div>
+              )}
               <div className="flex justify-between">
                 <span className="text-gray-600">Delivery Fee</span>
                 <span>{orderData.isDeliveryFeePay ? `₹${orderData.deliveryFee}` : "Free"}</span>
               </div>
-              <div className="flex justify-between font-semibold text-lg">
+              <div className="flex justify-between font-semibold text-lg border-t pt-3">
                 <span>Total</span>
                 <span>₹{orderData.payAmt}</span>
               </div>
+              {orderData.offerId && (
+                <div className="bg-green-50 p-3 rounded-lg">
+                  <p className="text-green-700 text-sm text-center">
+                    🎉 You saved ₹{(orderData.totalAmount - orderData.payAmt).toFixed(2)} with offer {orderData.offerId.code}!
+                  </p>
+                </div>
+              )}
             </div>
           </div>
         </div>
