@@ -21,16 +21,16 @@ async function toCheckStock(product_id, stock, isVarientTrue = false, Varient_id
     //     throw new Error(`Not enough stock for the product: ${product.name}. Available stock: ${product.stock}`);
     //   }
     // } else {
-    console.log("Varient_id",Varient_id)
-      const varient = product.Varient.find((item) => item._id.toString() === Varient_id);
-      if (!varient) {
-        throw new Error('Variant Not Found');
-      }
-      if (varient.stock_quantity < stock) {
-        throw new Error(`Not enough stock for the variant: ${varient.quantity}. Available stock: ${varient.stock_quantity}`);
-      }
+    console.log("Varient_id", Varient_id)
+    const varient = product.Varient.find((item) => item._id.toString() === Varient_id);
+    if (!varient) {
+      throw new Error('Variant Not Found');
+    }
+    if (varient.stock_quantity < stock) {
+      throw new Error(`Not enough stock for the variant: ${varient.quantity}. Available stock: ${varient.stock_quantity}`);
+    }
     // }
-      console.log("i have stock")
+    console.log("i have stock")
     return true;
   } catch (error) {
     throw new Error(error.message);
@@ -305,9 +305,9 @@ exports.ChangeOrderStatus = async (req, res) => {
 
     if (status === 'confirmed') {
       for (const item of Order.items) {
-        console.log("item",item)
+        console.log("item", item)
         const { productId, quantity, varient_type, Varient_id } = item;
-        console.log("productId, quantity, varient_type",productId, quantity, varient_type, Varient_id)
+        console.log("productId, quantity, varient_type", productId, quantity, varient_type, Varient_id)
 
         const isVarient = true;
 
@@ -1171,15 +1171,35 @@ exports.deleteOrder = async (req, res) => {
   }
 }
 
-// exports.refundOrder = async (req, res) => {
-//   try {
-    
-//   } catch (error) {
-//     console.log("Internal server error",error)
-//     res.status(500).json({
-//       success: false,
-//       message: "Internal server error",
-//       error: error.message
-//     })
-//   }
-// }
+exports.refundOrder = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { refundReason } = req.body;
+    const Order = await Ordermodel.findById(id);
+    if (!Order) {
+      return res.status(404).json({ success: false, message: "Order not found" });
+    }
+    // Assume 5-day window
+    const daysSinceDelivery = (Date.now() - new Date(Order.createdAt)) / (1000 * 60 * 60 * 24);
+    if (daysSinceDelivery > 5)
+      return res.status(400).json({ error: "Refund period expired" });
+
+    Order.refundRequest = true;
+    Order.refundReason = refundReason;
+    await Order.save();
+    return res.status(200).json({ success: true, message: "Refund request sent successfully" });
+
+    // if(Order.payment.status === "paid"){
+    //   Order.payment.status = "refunded";
+    //   await Order.save();
+    //   return res.status(200).json({ success: true, message: "Order refunded successfully" });
+    // }
+  } catch (error) {
+    console.log("Internal server error", error)
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      error: error.message
+    })
+  }
+}
