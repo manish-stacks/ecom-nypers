@@ -130,11 +130,11 @@ exports.createOrderOfProduct = async (req, res) => {
       const SettingsFind = await settings.findOne()
 
 
-      const findOrderDetails = await Ordermodel.findById(savedOrder?._id).populate('userId')
+      const findOrderDetails = await Ordermodel.findById(savedOrder?._id).populate('userId').populate('offerId');
       console.log(findOrderDetails?.userId?.Email)
       const MailOptions = {
-        email: order.userId?.Email,
-        subject: `Your Order ${order.orderId} Confirmation`,
+        email: findOrderDetails.userId?.Email,
+        subject: `Your Order ${findOrderDetails.orderId} Confirmation`,
         message: `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -153,8 +153,8 @@ exports.createOrderOfProduct = async (req, res) => {
     <div style="padding:32px 24px;">
       <div style="background:#f0fdf4; border-radius:12px; padding:20px; margin-bottom:24px;">
         <p style="margin:0; font-size:16px; line-height:1.6;">
-          Dear ${order.userId?.Name},<br>
-          Your order has been successfully placed on <strong>${new Date(order.orderDate).toLocaleDateString()}</strong>. We are preparing your items for shipment!
+          Dear ${findOrderDetails.userId?.Name},<br>
+          Your order has been successfully placed on <strong>${new Date(findOrderDetails.orderDate).toLocaleDateString()}</strong>. We are preparing your items for shipment!
         </p>
       </div>
 
@@ -165,15 +165,15 @@ exports.createOrderOfProduct = async (req, res) => {
         <table style="width:100%; border-collapse:separate; border-spacing:0 4px;">
           <tr>
             <td style="padding:8px 12px; background:#f0fdf4; border-radius:6px 0 0 6px;">Order ID:</td>
-            <td style="padding:8px 12px; background:#f0fdf4; border-radius:0 6px 6px 0;">${order.orderId}</td>
+            <td style="padding:8px 12px; background:#f0fdf4; border-radius:0 6px 6px 0;">${findOrderDetails.orderId}</td>
           </tr>
           <tr>
             <td style="padding:8px 12px; background:#f0fdf4; border-radius:6px 0 0 6px;">Email:</td>
-            <td style="padding:8px 12px; background:#f0fdf4; border-radius:0 6px 6px 0;">${order.userId?.Email}</td>
+            <td style="padding:8px 12px; background:#f0fdf4; border-radius:0 6px 6px 0;">${findOrderDetails.userId?.Email}</td>
           </tr>
           <tr>
             <td style="padding:8px 12px; background:#f0fdf4; border-radius:6px 0 0 6px;">Status:</td>
-            <td style="padding:8px 12px; background:#f0fdf4; border-radius:0 6px 6px 0;">${order.status}</td>
+            <td style="padding:8px 12px; background:#f0fdf4; border-radius:0 6px 6px 0;">${findOrderDetails.status}</td>
           </tr>
         </table>
       </div>
@@ -191,7 +191,7 @@ exports.createOrderOfProduct = async (req, res) => {
             </tr>
           </thead>
           <tbody>
-            ${order.items.map(item => `
+            ${findOrderDetails.items.map(item => `
               <tr style="background:#f0fdf4;">
                 <td style="padding:12px; border-radius:6px 0 0 6px;">
                   ${item.name}<br>
@@ -212,20 +212,20 @@ exports.createOrderOfProduct = async (req, res) => {
         <table style="width:100%; border-collapse:separate; border-spacing:0 4px;">
           <tr>
             <td style="padding:8px 12px; background:#f0fdf4; border-radius:6px 0 0 6px;">Subtotal:</td>
-            <td style="padding:8px 12px; background:#f0fdf4; border-radius:0 6px 6px 0;">₹${order.totalAmount}</td>
+            <td style="padding:8px 12px; background:#f0fdf4; border-radius:0 6px 6px 0;">₹${findOrderDetails.totalAmount}</td>
           </tr>
-          ${order.offerId ? `
+          ${findOrderDetails.offerId ? `
           <tr>
-            <td style="padding:8px 12px; background:#f0fdf4; border-radius:6px 0 0 6px;">Discount Applied (${order.offerId.code}):</td>
-            <td style="padding:8px 12px; background:#f0fdf4; border-radius:0 6px 6px 0;">- ${order.offerId.discount}%</td>
+            <td style="padding:8px 12px; background:#f0fdf4; border-radius:6px 0 0 6px;">Discount Applied (${findOrderDetails.offerId.code}):</td>
+            <td style="padding:8px 12px; background:#f0fdf4; border-radius:0 6px 6px 0;">- ${findOrderDetails.offerId.discount}%</td>
           </tr>` : ''}
           <tr>
             <td style="padding:8px 12px; background:#f0fdf4; border-radius:6px 0 0 6px;">Total Payable:</td>
-            <td style="padding:8px 12px; background:#f0fdf4; border-radius:0 6px 6px 0; font-weight:600;">₹${order.payAmt}</td>
+            <td style="padding:8px 12px; background:#f0fdf4; border-radius:0 6px 6px 0; font-weight:600;">₹${findOrderDetails.payAmt}</td>
           </tr>
           <tr>
             <td style="padding:8px 12px; background:#f0fdf4; border-radius:6px 0 0 6px;">Payment Method:</td>
-            <td style="padding:8px 12px; background:#f0fdf4; border-radius:0 6px 6px 0;">${order.paymentType}</td>
+            <td style="padding:8px 12px; background:#f0fdf4; border-radius:0 6px 6px 0;">${findOrderDetails.paymentType}</td>
           </tr>
         </table>
       </div>
@@ -236,9 +236,9 @@ exports.createOrderOfProduct = async (req, res) => {
         </h3>
         <div style="background:#f0fdf4; padding:16px; border-radius:12px;">
           <p style="margin:0; line-height:1.6;">
-            ${order.shipping.addressLine}<br>
-            ${order.shipping.city}, ${order.shipping.state}, ${order.shipping.postCode}<br>
-            <strong>Mobile:</strong> ${order.shipping.mobileNumber}
+            ${findOrderDetails.shipping.addressLine}<br>
+            ${findOrderDetails.shipping.city}, ${findOrderDetails.shipping.state}, ${findOrderDetails.shipping.postCode}<br>
+            <strong>Mobile:</strong> ${findOrderDetails.shipping.mobileNumber}
           </p>
         </div>
       </div>
