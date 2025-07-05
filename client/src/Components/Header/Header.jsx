@@ -70,10 +70,10 @@ const Header = () => {
         <div className="flex items-center justify-between">
           {/* Logo */}
           <div className="flex items-center">
-            <div className="text-2xl font-bold text-gray-900">
+            <Link to="/" className="text-2xl font-bold text-gray-900">
               {/* Shoe<span className="text-[#000000]">Hub</span> */}
               <img src={logo} className='w-18 rounded-lg' alt="Nypers" />
-            </div>
+            </Link>
           </div>
 
           {/* Desktop Navigation */}
