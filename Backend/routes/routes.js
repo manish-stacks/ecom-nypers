@@ -3,7 +3,7 @@ const { RegisterUser, LogginUser, LogoutUser, PasswordChangeRequest, verifyOtpFo
 const { protect } = require('../middleware/auth');
 const { createProduct, getAllProducts, deleteProductById, getProductById, updateProduct, getProductsByCategory, getProductsBySubCategory, search_product_and_filter, updateIsShowOnHome } = require('../controller/Product.controller');
 const multer = require("multer");
-const { createOrderOfProduct, ChangeOrderStatus, getAllOrder, getMyLastOrder, checkStatus, getOrderByOrderId, OrderProcessRating, getMyAllOrder, getOrderByOrderIdAdmin, generateOrderReport, getRecentsOrders, deleteOrder } = require('../controller/Order_Controller');
+const { createOrderOfProduct, ChangeOrderStatus, getAllOrder, getMyLastOrder, checkStatus, getOrderByOrderId, OrderProcessRating, getMyAllOrder, getOrderByOrderIdAdmin, generateOrderReport, getRecentsOrders, deleteOrder, refundOrder } = require('../controller/Order_Controller');
 const { addSettings, editSettings, getSettings } = require('../controller/Settings');
 const { createHeroPage, getHeroPage } = require('../controller/Hero.controller');
 const { createPage, getAllPages, getSinglePage, updatePage, deletePage, createAnnouncements, getAnnouncements, updateAnnouncement, deleteAnnouncement } = require('../controller/Pages.controller');
@@ -136,6 +136,7 @@ router.put('/update-show-home/:id',updateIsShowOnHome)
 // router.post('/verify-payment/:merchantTransactionId', checkStatus);
 router.post('/verify-payment', checkStatus);
 router.delete('/admin/delete-order/:id', deleteOrder);
+router.put('/refund-request-order/:id', refundOrder);
 
 // about Routes
 router.get("/get-about", getAbout);

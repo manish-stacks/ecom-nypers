@@ -11,6 +11,8 @@ import {
   RefreshCw,
   Tag,
   Percent,
+  AlertTriangle,
+  RotateCcw,
 } from "lucide-react";
 
 const ViewOrder = () => {
@@ -53,8 +55,15 @@ const ViewOrder = () => {
       pending: "bg-yellow-100 text-yellow-800",
       cancelled: "bg-red-100 text-red-800",
       processing: "bg-blue-100 text-blue-800",
+      confirmed: "bg-blue-100 text-blue-800",
     };
     return colors[status] || "bg-gray-100 text-gray-800";
+  };
+
+  const getRefundStatusColor = (refundRequest) => {
+    return refundRequest 
+      ? "bg-orange-100 text-orange-800 border-orange-200" 
+      : "bg-gray-100 text-gray-800 border-gray-200";
   };
 
   if (loading) {
@@ -93,7 +102,7 @@ const ViewOrder = () => {
           </p>
         </div>
         <div className="flex items-center gap-3">
-          {orderData.offerId && (
+          {orderData.offerId && Object.keys(orderData.offerId).length > 0 && (
             <div className="bg-green-50 border border-green-200 px-3 py-2 rounded-lg">
               <div className="flex items-center gap-2">
                 <Tag className="w-4 h-4 text-green-600" />
@@ -112,6 +121,23 @@ const ViewOrder = () => {
           </div>
         </div>
       </div>
+
+      {/* Refund Alert - Show if refund is requested */}
+      {orderData.refundRequest && (
+        <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
+          <div className="flex items-start gap-3">
+            <AlertTriangle className="w-5 h-5 text-orange-600 mt-0.5 flex-shrink-0" />
+            <div className="flex-1">
+              <h3 className="font-semibold text-orange-800 mb-1">
+                Refund Request Pending
+              </h3>
+              <p className="text-orange-700 text-sm">
+                This order has a pending refund request. Please review the details below.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-2">
         {/* Customer Details */}
@@ -203,8 +229,56 @@ const ViewOrder = () => {
         </div>
       </div>
 
+      {/* Refund Details - Only show if refund is requested */}
+      {orderData.refundRequest && (
+        <div className="bg-white rounded-lg shadow-sm border border-orange-200">
+          <div className="p-6">
+            <div className="flex items-center mb-4">
+              <RotateCcw className="w-5 h-5 text-orange-600 mr-2" />
+              <h2 className="text-lg font-semibold text-orange-800">Refund Details</h2>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="bg-orange-50 p-4 rounded-lg border border-orange-200">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-gray-700 font-medium">Refund Status</span>
+                  <AlertTriangle className="w-4 h-4 text-orange-600" />
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="bg-orange-100 text-orange-800 px-3 py-1 rounded-full text-sm font-medium">
+                    Pending Review
+                  </span>
+                </div>
+              </div>
+              <div className="bg-orange-50 p-4 rounded-lg border border-orange-200">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-gray-700 font-medium">Refund Amount</span>
+                  <CreditCard className="w-4 h-4 text-orange-600" />
+                </div>
+                <p className="text-orange-700 font-bold text-lg">
+                  ₹{orderData.payAmt}
+                </p>
+              </div>
+            </div>
+            {orderData.refundReason && (
+              <div className="mt-4 p-4 bg-orange-50 rounded-lg border border-orange-200">
+                <h4 className="font-medium text-orange-800 mb-2">Refund Reason:</h4>
+                <p className="text-orange-700 text-sm bg-white p-3 rounded border border-orange-200">
+                  {orderData.refundReason}
+                </p>
+              </div>
+            )}
+            <div className="mt-4 p-3 bg-orange-100 rounded-lg border border-orange-200">
+              <p className="text-orange-700 text-sm">
+                <strong>Note:</strong> Refund requests are typically processed within 3-5 business days. 
+                You will receive an email notification once the refund is processed.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Offer Details - Only show if offer exists */}
-      {orderData.offerId && (
+      {orderData.offerId && Object.keys(orderData.offerId).length > 0 && (
         <div className="bg-gradient-to-r from-green-50 to-green-100 rounded-lg shadow-sm border border-green-200">
           <div className="p-6">
             <div className="flex items-center mb-4">
@@ -317,7 +391,7 @@ const ViewOrder = () => {
                 <span className="text-gray-600">Subtotal</span>
                 <span>₹{orderData.totalAmount}</span>
               </div>
-              {orderData.offerId && (
+              {orderData.offerId && Object.keys(orderData.offerId).length > 0 && (
                 <div className="flex justify-between text-green-600">
                   <span>Discount ({orderData.offerId.discount}%)</span>
                   <span>-₹{(orderData.totalAmount - orderData.payAmt).toFixed(2)}</span>
@@ -331,7 +405,7 @@ const ViewOrder = () => {
                 <span>Total</span>
                 <span>₹{orderData.payAmt}</span>
               </div>
-              {orderData.offerId && (
+              {orderData.offerId && Object.keys(orderData.offerId).length > 0 && (
                 <div className="bg-green-50 p-3 rounded-lg">
                   <p className="text-green-700 text-sm text-center">
                     🎉 You saved ₹{(orderData.totalAmount - orderData.payAmt).toFixed(2)} with offer {orderData.offerId.code}!

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { ChevronLeft, ChevronRight, Loader2, AlertCircle, Package, Tag } from "lucide-react";
+import { ChevronLeft, ChevronRight, Loader2, AlertCircle, Package, Tag, RefreshCw, AlertTriangle } from "lucide-react";
 
 const statusColors = {
   pending: "bg-yellow-100 text-yellow-800",
@@ -111,20 +111,27 @@ const ManageOrder = () => {
               font-size: 28px;
               font-weight: 700;
             }
-            .order-info, .shipping-info, .customer-details, .order-items, .order-summary, .footer, .offer-details {
+            .order-info, .shipping-info, .customer-details, .order-items, .order-summary, .footer, .offer-details, .refund-details {
               padding: 20px;
             }
-            .order-info, .shipping-info, .offer-details {
+            .order-info, .shipping-info, .offer-details, .refund-details {
               background-color: #f9f9f9;
               border-bottom: 1px solid #e0e0e0;
             }
-            .order-info div, .shipping-info div, .offer-details div {
+            .refund-details {
+              background-color: #fef7f7;
+              border-left: 4px solid #ef4444;
+            }
+            .order-info div, .shipping-info div, .offer-details div, .refund-details div {
               margin-bottom: 10px;
             }
-            .order-info h2, .shipping-info h2, .offer-details h2 {
+            .order-info h2, .shipping-info h2, .offer-details h2, .refund-details h2 {
               font-size: 18px;
               margin-bottom: 10px;
               color: #4a90e2;
+            }
+            .refund-details h2 {
+              color: #ef4444;
             }
             .status {
               font-weight: bold;
@@ -133,6 +140,14 @@ const ManageOrder = () => {
             .offer-badge {
               background-color: #e8f5e8;
               color: #2d5a2d;
+              padding: 4px 8px;
+              border-radius: 4px;
+              font-size: 12px;
+              font-weight: bold;
+            }
+            .refund-badge {
+              background-color: #fee2e2;
+              color: #dc2626;
               padding: 4px 8px;
               border-radius: 4px;
               font-size: 12px;
@@ -204,6 +219,14 @@ const ManageOrder = () => {
                   : ""
               }
             </div>
+
+            ${order.refundRequest ? `
+            <div class="refund-details">
+              <h2>Refund Request</h2>
+              <p><strong>Status:</strong> <span class="refund-badge">REFUND REQUESTED</span></p>
+              <p><strong>Reason:</strong> ${order.refundReason || 'No reason provided'}</p>
+            </div>
+            ` : ''}
 
             ${order.offerId ? `
             <div class="offer-details">
@@ -323,6 +346,7 @@ const ManageOrder = () => {
                 <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Status</th>
                 <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Amount</th>
                 <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Offer</th>
+                <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Refund</th>
                 <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Payment</th>
                 <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Date</th>
                 <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Actions</th>
@@ -341,7 +365,7 @@ const ManageOrder = () => {
                   </td>
                   <td className="px-4 py-2 text-sm text-gray-900">
                     <div className="flex flex-col">
-                      {order.offerId ? (
+                      {order.offerId && Object.keys(order.offerId).length > 0 ? (
                         <>
                           <span className="text-gray-500 line-through text-xs">₹{order.totalAmount.toFixed(2)}</span>
                           <span className="text-green-600 font-medium">₹{order.payAmt.toFixed(2)}</span>
@@ -352,7 +376,7 @@ const ManageOrder = () => {
                     </div>
                   </td>
                   <td className="px-4 py-2 text-sm">
-                    {order.offerId ? (
+                    {order.offerId && Object.keys(order.offerId).length > 0 ? (
                       <div className="flex items-center gap-2">
                         <Tag className="w-4 h-4 text-green-500" />
                         <div className="flex flex-col">
@@ -362,6 +386,27 @@ const ManageOrder = () => {
                       </div>
                     ) : (
                       <span className="text-gray-400 text-xs">No offer</span>
+                    )}
+                  </td>
+                  <td className="px-4 py-2 text-sm">
+                    {order.refundRequest ? (
+                      <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-1">
+                          <RefreshCw className="w-4 h-4 text-red-500" />
+                          <span className="text-red-600 font-medium text-xs">Requested</span>
+                        </div>
+                        {order.refundReason && (
+                          <div className="group relative">
+                            <AlertTriangle className="w-4 h-4 text-amber-500 cursor-help" />
+                            <div className="absolute left-1/2 transform -translate-x-1/2 bottom-full mb-2 w-64 p-2 bg-gray-800 text-white text-xs rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+                              <div className="font-medium mb-1">Refund Reason:</div>
+                              <div>{order.refundReason}</div>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <span className="text-gray-400 text-xs">No refund</span>
                     )}
                   </td>
                   <td className="px-4 py-2 text-sm text-gray-900">{order.paymentType}</td>
@@ -399,7 +444,7 @@ const ManageOrder = () => {
                         <option value="" disabled>
                           Select Action
                         </option>
-                        {['pending', 'confirmed', 'shipped', 'delivered', 'cancelled'].map(
+                        {['pending', 'confirmed', 'shipped', 'progress', 'delivered', 'cancelled', 'returned'].map(
                           (status) => (
                             <option key={status} value={status}>
                               Set to {status}

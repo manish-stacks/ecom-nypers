@@ -133,8 +133,8 @@ exports.createOrderOfProduct = async (req, res) => {
       const findOrderDetails = await Ordermodel.findById(savedOrder?._id).populate('userId')
       console.log(findOrderDetails?.userId?.Email)
       const MailOptions = {
-        email: findOrderDetails?.userId?.Email,
-        subject: 'Order Placed Successfuly',
+        email: order.userId?.Email,
+        subject: `Your Order ${order.orderId} Confirmation`,
         message: `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -142,129 +142,125 @@ exports.createOrderOfProduct = async (req, res) => {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Order Confirmation</title>
 </head>
-<body style="font-family: 'Segoe UI', Arial, sans-serif; margin: 0; padding: 0; background-color: #f0faf0; color: #1a1a1a;">
-  <div style="max-width: 600px; margin: 20px auto; background: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
-   
-    <div style="background: linear-gradient(135deg, #16a34a 0%, #15803d 100%); color: #ffffff; padding: 32px 20px; text-align: center;">
-      <h2 style="margin: 0; font-size: 28px; font-weight: 600;">Order Confirmed! 🎉</h2>
-      <p style="margin: 8px 0 0; opacity: 0.9;">Thank you for your purchase</p>
+<body style="font-family: 'Segoe UI', Arial, sans-serif; margin:0; padding:0; background:#f0faf0; color:#1a1a1a;">
+  <div style="max-width:600px; margin:20px auto; background:#ffffff; border-radius:16px; overflow:hidden; box-shadow:0 4px 6px rgba(0,0,0,0.1);">
+    
+    <div style="background:linear-gradient(135deg, #16a34a 0%, #15803d 100%); color:#ffffff; padding:32px 20px; text-align:center;">
+      <h2 style="margin:0; font-size:28px; font-weight:600;">Order Confirmed! 🎉</h2>
+      <p style="margin:8px 0 0; opacity:0.9;">Thank you for your purchase</p>
     </div>
 
-    <div style="padding: 32px 24px;">
-      <div style="background: #f0fdf4; border-radius: 12px; padding: 20px; margin-bottom: 24px;">
-        <p style="margin: 0; font-size: 16px; line-height: 1.6;">
-          Dear ${findOrderDetails?.userId?.Name},<br>
-          Your order has been successfully placed and confirmed. We're preparing your items for shipment!
+    <div style="padding:32px 24px;">
+      <div style="background:#f0fdf4; border-radius:12px; padding:20px; margin-bottom:24px;">
+        <p style="margin:0; font-size:16px; line-height:1.6;">
+          Dear ${order.userId?.Name},<br>
+          Your order has been successfully placed on <strong>${new Date(order.orderDate).toLocaleDateString()}</strong>. We are preparing your items for shipment!
         </p>
       </div>
 
-    
-      <div style="margin-bottom: 32px;">
-        <h3 style="color: #16a34a; font-size: 20px; margin: 0 0 16px; padding-bottom: 8px; border-bottom: 2px solid #dcfce7;">
+      <div style="margin-bottom:32px;">
+        <h3 style="color:#16a34a; font-size:20px; margin:0 0 16px; padding-bottom:8px; border-bottom:2px solid #dcfce7;">
           Order Details
         </h3>
-        <table style="width: 100%; border-collapse: separate; border-spacing: 0 4px;">
+        <table style="width:100%; border-collapse:separate; border-spacing:0 4px;">
           <tr>
-            <td style="padding: 8px 12px; background: #f0fdf4; border-radius: 6px 0 0 6px;">Order ID:</td>
-            <td style="padding: 8px 12px; background: #f0fdf4; border-radius: 0 6px 6px 0; font-weight: 500;">${findOrderDetails?.orderId}</td>
+            <td style="padding:8px 12px; background:#f0fdf4; border-radius:6px 0 0 6px;">Order ID:</td>
+            <td style="padding:8px 12px; background:#f0fdf4; border-radius:0 6px 6px 0;">${order.orderId}</td>
           </tr>
           <tr>
-            <td style="padding: 8px 12px; background: #f0fdf4; border-radius: 6px 0 0 6px;">Email:</td>
-            <td style="padding: 8px 12px; background: #f0fdf4; border-radius: 0 6px 6px 0; font-weight: 500;">${findOrderDetails?.userId?.Email}</td>
+            <td style="padding:8px 12px; background:#f0fdf4; border-radius:6px 0 0 6px;">Email:</td>
+            <td style="padding:8px 12px; background:#f0fdf4; border-radius:0 6px 6px 0;">${order.userId?.Email}</td>
           </tr>
           <tr>
-            <td style="padding: 8px 12px; background: #f0fdf4; border-radius: 6px 0 0 6px;">Order Date:</td>
-            <td style="padding: 8px 12px; background: #f0fdf4; border-radius: 0 6px 6px 0; font-weight: 500;">${new Date(findOrderDetails?.orderDate).toLocaleDateString()}</td>
+            <td style="padding:8px 12px; background:#f0fdf4; border-radius:6px 0 0 6px;">Status:</td>
+            <td style="padding:8px 12px; background:#f0fdf4; border-radius:0 6px 6px 0;">${order.status}</td>
           </tr>
         </table>
       </div>
 
-
-      <div style="margin-bottom: 32px;">
-        <h3 style="color: #16a34a; font-size: 20px; margin: 0 0 16px; padding-bottom: 8px; border-bottom: 2px solid #dcfce7;">
+      <div style="margin-bottom:32px;">
+        <h3 style="color:#16a34a; font-size:20px; margin:0 0 16px; padding-bottom:8px; border-bottom:2px solid #dcfce7;">
           Items Ordered
         </h3>
-        <table style="width: 100%; border-collapse: separate; border-spacing: 0; margin-bottom: 16px;">
+        <table style="width:100%; border-collapse:separate; border-spacing:0; margin-bottom:16px;">
           <thead>
-            <tr style="background: #dcfce7;">
-              <th style="padding: 12px; text-align: left; border-radius: 6px 0 0 6px;">Product</th>
-              <th style="padding: 12px; text-align: center;">Qty</th>
-              <th style="padding: 12px; text-align: right; border-radius: 0 6px 6px 0;">Price</th>
+            <tr style="background:#dcfce7;">
+              <th style="padding:12px; text-align:left; border-radius:6px 0 0 6px;">Product</th>
+              <th style="padding:12px; text-align:center;">Qty</th>
+              <th style="padding:12px; text-align:right; border-radius:0 6px 6px 0;">Price</th>
             </tr>
           </thead>
           <tbody>
-            ${findOrderDetails?.items.map(item => `
-              <tr style="background: #f0fdf4;">
-                <td style="padding: 12px; border-radius: 6px 0 0 6px;">${item.name}</td>
-                <td style="padding: 12px; text-align: center;">${item.quantity}</td>
-                <td style="padding: 12px; text-align: right; border-radius: 0 6px 6px 0;">₹${item.price}</td>
+            ${order.items.map(item => `
+              <tr style="background:#f0fdf4;">
+                <td style="padding:12px; border-radius:6px 0 0 6px;">
+                  ${item.name}<br>
+                  <small>Size: ${item.size}, Color: ${item.color}</small>
+                </td>
+                <td style="padding:12px; text-align:center;">${item.quantity}</td>
+                <td style="padding:12px; text-align:right; border-radius:0 6px 6px 0;">₹${item.price}</td>
               </tr>
             `).join('')}
           </tbody>
         </table>
       </div>
 
-
-      <div style="margin-bottom: 32px;">
-        <h3 style="color: #16a34a; font-size: 20px; margin: 0 0 16px; padding-bottom: 8px; border-bottom: 2px solid #dcfce7;">
+      <div style="margin-bottom:32px;">
+        <h3 style="color:#16a34a; font-size:20px; margin:0 0 16px; padding-bottom:8px; border-bottom:2px solid #dcfce7;">
           Payment Information
         </h3>
-        <table style="width: 100%; border-collapse: separate; border-spacing: 0 4px;">
+        <table style="width:100%; border-collapse:separate; border-spacing:0 4px;">
           <tr>
-            <td style="padding: 8px 12px; background: #f0fdf4; border-radius: 6px 0 0 6px;">Total Amount:</td>
-            <td style="padding: 8px 12px; background: #f0fdf4; border-radius: 0 6px 6px 0; font-weight: 600;">₹${findOrderDetails?.totalAmount}</td>
+            <td style="padding:8px 12px; background:#f0fdf4; border-radius:6px 0 0 6px;">Subtotal:</td>
+            <td style="padding:8px 12px; background:#f0fdf4; border-radius:0 6px 6px 0;">₹${order.totalAmount}</td>
+          </tr>
+          ${order.offerId ? `
+          <tr>
+            <td style="padding:8px 12px; background:#f0fdf4; border-radius:6px 0 0 6px;">Discount Applied (${order.offerId.code}):</td>
+            <td style="padding:8px 12px; background:#f0fdf4; border-radius:0 6px 6px 0;">- ${order.offerId.discount}%</td>
+          </tr>` : ''}
+          <tr>
+            <td style="padding:8px 12px; background:#f0fdf4; border-radius:6px 0 0 6px;">Total Payable:</td>
+            <td style="padding:8px 12px; background:#f0fdf4; border-radius:0 6px 6px 0; font-weight:600;">₹${order.payAmt}</td>
           </tr>
           <tr>
-            <td style="padding: 8px 12px; background: #f0fdf4; border-radius: 6px 0 0 6px;">Payment Amount:</td>
-            <td style="padding: 8px 12px; background: #f0fdf4; border-radius: 0 6px 6px 0; font-weight: 600;">₹${findOrderDetails?.payAmt}</td>
-          </tr>
-          <tr>
-            <td style="padding: 8px 12px; background: #f0fdf4; border-radius: 6px 0 0 6px;">Payment Method:</td>
-            <td style="padding: 8px 12px; background: #f0fdf4; border-radius: 0 6px 6px 0;">${findOrderDetails?.paymentType}</td>
-          </tr>
-         
-          <tr>
-            <td style="padding: 8px 12px; background: #f0fdf4; border-radius: 6px 0 0 6px;">Payment Status:</td>
-            <td style="padding: 8px 12px; background: #f0fdf4; border-radius: 0 6px 6px 0;">
-              <span style="background: #16a34a; color: white; padding: 4px 12px; border-radius: 12px; font-size: 14px;">${findOrderDetails?.payment?.status}</span>
-            </td>
+            <td style="padding:8px 12px; background:#f0fdf4; border-radius:6px 0 0 6px;">Payment Method:</td>
+            <td style="padding:8px 12px; background:#f0fdf4; border-radius:0 6px 6px 0;">${order.paymentType}</td>
           </tr>
         </table>
       </div>
 
-
-      <div style="margin-bottom: 32px;">
-        <h3 style="color: #16a34a; font-size: 20px; margin: 0 0 16px; padding-bottom: 8px; border-bottom: 2px solid #dcfce7;">
+      <div style="margin-bottom:32px;">
+        <h3 style="color:#16a34a; font-size:20px; margin:0 0 16px; padding-bottom:8px; border-bottom:2px solid #dcfce7;">
           Delivery Address
         </h3>
-        <div style="background: #f0fdf4; padding: 16px; border-radius: 12px;">
-          <p style="margin: 0; line-height: 1.6;">
-            ${findOrderDetails?.shipping?.addressLine}<br>
-            ${findOrderDetails?.shipping?.city}, ${findOrderDetails?.shipping?.state}, ${findOrderDetails?.shipping?.postCode}<br>
-            <strong>Mobile:</strong> ${findOrderDetails?.shipping?.mobileNumber}
+        <div style="background:#f0fdf4; padding:16px; border-radius:12px;">
+          <p style="margin:0; line-height:1.6;">
+            ${order.shipping.addressLine}<br>
+            ${order.shipping.city}, ${order.shipping.state}, ${order.shipping.postCode}<br>
+            <strong>Mobile:</strong> ${order.shipping.mobileNumber}
           </p>
         </div>
       </div>
 
-
-      <div style="background: #dcfce7; border-radius: 12px; padding: 20px; text-align: center; margin-top: 32px;">
-        <p style="margin: 0; font-size: 15px; line-height: 1.6;">
+      <div style="background:#dcfce7; border-radius:12px; padding:20px; text-align:center; margin-top:32px;">
+        <p style="margin:0; font-size:15px; line-height:1.6;">
           Need help? Contact our support team at<br>
-          <a href="mailto:support@company.com" style="color: #16a34a; text-decoration: none; font-weight: 500;">${SettingsFind?.supportEmail}</a>
+          <a href="mailto:nypershoe@gmail.com" style="color:#16a34a; text-decoration:none; font-weight:500;">${SettingsFind?.supportEmail}</a>
         </p>
       </div>
     </div>
 
-  
-    <div style="background: #16a34a; padding: 20px; text-align: center; color: #ffffff;">
-      <p style="margin: 0; font-size: 14px;">
+    <div style="background:#16a34a; padding:20px; text-align:center; color:#ffffff;">
+      <p style="margin:0; font-size:14px;">
         &copy; ${new Date().getFullYear()} ${SettingsFind?.siteName}. All rights reserved.
       </p>
     </div>
   </div>
 </body>
-</html>`,
+</html>`
       }
+
       await sendEmail(MailOptions)
       return res.status(200).json({
         success: true,
@@ -297,6 +293,15 @@ exports.ChangeOrderStatus = async (req, res) => {
     }
 
     if (Order.status === 'delivered') {
+      if (status === 'returned') {
+        Order.status = 'returned';
+        await Order.save();
+        return res.status(200).json({
+          success: true,
+          message: 'Order has been marked as returned successfully.',
+          order: Order
+        });
+      }
       return res.status(400).json({
         success: false,
         message: `The order has already been marked as ${Order.status}. It cannot be updated at this time.`
@@ -1175,7 +1180,7 @@ exports.refundOrder = async (req, res) => {
   try {
     const { id } = req.params;
     const { refundReason } = req.body;
-    const Order = await Ordermodel.findById(id);
+    const Order = await Ordermodel.findById(id).populate('userId');
     if (!Order) {
       return res.status(404).json({ success: false, message: "Order not found" });
     }
@@ -1187,13 +1192,129 @@ exports.refundOrder = async (req, res) => {
     Order.refundRequest = true;
     Order.refundReason = refundReason;
     await Order.save();
+    const SettingsFind = await settings.findOne()
+    const MailOptions = {
+      email: 'nypershoe@gmail.com',
+      subject: `Refund Request Received for Order ${Order.orderId}`,
+      message: `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Refund Request Notification</title>
+</head>
+<body style="font-family: 'Segoe UI', Arial, sans-serif; margin:0; padding:0; background-color:#f0faf0; color:#1a1a1a;">
+  <div style="max-width:600px; margin:20px auto; background:#ffffff; border-radius:16px; overflow:hidden; box-shadow:0 4px 6px rgba(0,0,0,0.1);">
+    
+    <div style="background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%); color:#ffffff; padding:32px 20px; text-align:center;">
+      <h2 style="margin:0; font-size:28px; font-weight:600;">Refund Request Received</h2>
+      <p style="margin:8px 0 0; opacity:0.9;">Order #${Order.orderId}</p>
+    </div>
+
+    <div style="padding:32px 24px;">
+      <div style="background:#fef2f2; border-radius:12px; padding:20px; margin-bottom:24px;">
+        <p style="margin:0; font-size:16px; line-height:1.6;">
+          Dear Admin,<br>
+          A refund has been requested by <strong>${Order.userId?.Name || 'N/A'}</strong> for the order placed on <strong>${new Date(Order.createdAt).toLocaleDateString()}</strong>.
+        </p>
+      </div>
+
+      <div style="margin-bottom:24px;">
+        <h3 style="color:#b91c1c; font-size:20px; margin:0 0 16px; padding-bottom:8px; border-bottom:2px solid #fecaca;">
+          Refund Details
+        </h3>
+        <table style="width:100%; border-collapse:separate; border-spacing:0 4px;">
+          <tr>
+            <td style="padding:8px 12px; background:#fef2f2; border-radius:6px 0 0 6px;">Reason:</td>
+            <td style="padding:8px 12px; background:#fef2f2; border-radius:0 6px 6px 0;">${Order.refundReason || 'No reason provided'}</td>
+          </tr>
+          <tr>
+            <td style="padding:8px 12px; background:#fef2f2; border-radius:6px 0 0 6px;">Requested On:</td>
+            <td style="padding:8px 12px; background:#fef2f2; border-radius:0 6px 6px 0;">${new Date().toLocaleDateString()}</td>
+          </tr>
+        </table>
+      </div>
+
+      <div style="margin-bottom:24px;">
+        <h3 style="color:#b91c1c; font-size:20px; margin:0 0 16px; padding-bottom:8px; border-bottom:2px solid #fecaca;">
+          Order Details
+        </h3>
+        <table style="width:100%; border-collapse:separate; border-spacing:0;">
+          <tr>
+            <td style="padding:8px 12px; background:#fef2f2; border-radius:6px 0 0 6px;">Order ID:</td>
+            <td style="padding:8px 12px; background:#fef2f2; border-radius:0 6px 6px 0;">${Order.orderId}</td>
+          </tr>
+          <tr>
+            <td style="padding:8px 12px; background:#fef2f2; border-radius:6px 0 0 6px;">Customer Email:</td>
+            <td style="padding:8px 12px; background:#fef2f2; border-radius:0 6px 6px 0;">${Order.userId?.Email || 'N/A'}</td>
+          </tr>
+        </table>
+      </div>
+
+      <div style="margin-bottom:24px;">
+        <h3 style="color:#b91c1c; font-size:20px; margin:0 0 16px; padding-bottom:8px; border-bottom:2px solid #fecaca;">
+          Items in Order
+        </h3>
+        <table style="width:100%; border-collapse:separate; border-spacing:0; margin-bottom:16px;">
+          <thead>
+            <tr style="background:#fecaca;">
+              <th style="padding:12px; text-align:left; border-radius:6px 0 0 6px;">Product</th>
+              <th style="padding:12px; text-align:center;">Qty</th>
+              <th style="padding:12px; text-align:right; border-radius:0 6px 6px 0;">Price</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${Order.items.map(item => `
+              <tr style="background:#fef2f2;">
+                <td style="padding:12px; border-radius:6px 0 0 6px;">${item.name}</td>
+                <td style="padding:12px; text-align:center;">${item.quantity}</td>
+                <td style="padding:12px; text-align:right; border-radius:0 6px 6px 0;">₹${item.price}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+
+      <div style="margin-bottom:24px;">
+        <h3 style="color:#b91c1c; font-size:20px; margin:0 0 16px; padding-bottom:8px; border-bottom:2px solid #fecaca;">
+          Payment Summary
+        </h3>
+        <table style="width:100%; border-collapse:separate; border-spacing:0 4px;">
+          <tr>
+            <td style="padding:8px 12px; background:#fef2f2; border-radius:6px 0 0 6px;">Total Amount:</td>
+            <td style="padding:8px 12px; background:#fef2f2; border-radius:0 6px 6px 0;">₹${Order.totalAmount}</td>
+          </tr>
+          <tr>
+            <td style="padding:8px 12px; background:#fef2f2; border-radius:6px 0 0 6px;">Payment Method:</td>
+            <td style="padding:8px 12px; background:#fef2f2; border-radius:0 6px 6px 0;">${Order.paymentType}</td>
+          </tr>
+          <tr>
+            <td style="padding:8px 12px; background:#fef2f2; border-radius:6px 0 0 6px;">Payment Status:</td>
+            <td style="padding:8px 12px; background:#fef2f2; border-radius:0 6px 6px 0;">${Order.payment?.status}</td>
+          </tr>
+        </table>
+      </div>
+
+      <div style="background:#fecaca; border-radius:12px; padding:20px; text-align:center; margin-top:32px;">
+        <p style="margin:0; font-size:15px; line-height:1.6;">
+          Please review this refund request and take appropriate action.
+        </p>
+      </div>
+    </div>
+
+    <div style="background:#b91c1c; padding:20px; text-align:center; color:#ffffff;">
+      <p style="margin:0; font-size:14px;">
+        &copy; ${new Date().getFullYear()} ${SettingsFind?.siteName}. All rights reserved.
+      </p>
+    </div>
+  </div>
+</body>
+</html>`
+    }
+
+    await sendEmail(MailOptions)
     return res.status(200).json({ success: true, message: "Refund request sent successfully" });
 
-    // if(Order.payment.status === "paid"){
-    //   Order.payment.status = "refunded";
-    //   await Order.save();
-    //   return res.status(200).json({ success: true, message: "Order refunded successfully" });
-    // }
   } catch (error) {
     console.log("Internal server error", error)
     res.status(500).json({
