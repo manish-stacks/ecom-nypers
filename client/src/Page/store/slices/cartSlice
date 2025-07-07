@@ -1,0 +1,167 @@
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit"
+import axios from "axios"
+
+// Load initial state from sessionStorage
+const loadFromSessionStorage = (key, defaultValue) => {
+  try {
+    const stored = sessionStorage.getItem(key)
+    return stored ? JSON.parse(stored) : defaultValue
+  } catch {
+    return defaultValue
+  }
+}
+
+// Async thunk for applying promo code
+export const applyPromoCode = createAsyncThunk(
+  "cart/applyPromoCode",
+  async ({ code, orderAmount }, { rejectWithValue }) => {
+    try {
+      const response = await axios.post("https://api.nypers.in/api/v1/apply-coupon", {
+        code,
+        orderAmount,
+      })
+
+      const { discountAmount, finalAmount, appliedCoupon } = response.data
+
+      const couponData = {
+        code,
+        applied: true,
+        discountAmount,
+        originalAmount: orderAmount,
+        finalAmount,
+        offerId: appliedCoupon._id,
+      }
+
+      sessionStorage.setItem("appliedCoupon", JSON.stringify(couponData))
+
+      return {
+        code,
+        discountAmount,
+        finalAmount,
+        offerId: appliedCoupon._id,
+      }
+    } catch (error) {
+      sessionStorage.removeItem("appliedCoupon")
+      return rejectWithValue(error.response?.data?.message || "Failed to apply coupon. Try again later.")
+    }
+  },
+)
+
+const cartSlice = createSlice({
+  name: "cart",
+  initialState: {
+    cartItems: loadFromSessionStorage("cartItems", []),
+    savedItems: loadFromSessionStorage("savedItems", []),
+    promoCode: "",
+    promoApplied: false,
+    discountAmount: 0,
+    couponError: "",
+    loading: false,
+  },
+  reducers: {
+    updateQuantity: (state, action) => {
+      const { id, newQuantity } = action.payload
+      if (newQuantity < 1) return
+
+      const item = state.cartItems.find((item) => item.product === id)
+      if (item) {
+        item.quantity = newQuantity
+        sessionStorage.setItem("cartItems", JSON.stringify(state.cartItems))
+      }
+    },
+    removeItem: (state, action) => {
+      const id = action.payload
+      state.cartItems = state.cartItems.filter((item) => item.product !== id)
+      sessionStorage.setItem("cartItems", JSON.stringify(state.cartItems))
+    },
+    saveForLater: (state, action) => {
+      const item = action.payload
+      state.savedItems.push(item)
+      state.cartItems = state.cartItems.filter((cartItem) => cartItem.product !== item.product)
+      sessionStorage.setItem("cartItems", JSON.stringify(state.cartItems))
+      sessionStorage.setItem("savedItems", JSON.stringify(state.savedItems))
+    },
+    moveToCart: (state, action) => {
+      const item = action.payload
+      state.cartItems.push({ ...item, quantity: 1 })
+      state.savedItems = state.savedItems.filter((savedItem) => savedItem.product !== item.product)
+      sessionStorage.setItem("cartItems", JSON.stringify(state.cartItems))
+      sessionStorage.setItem("savedItems", JSON.stringify(state.savedItems))
+    },
+    addToCart: (state, action) => {
+      const cartData = action.payload
+      const existingIndex = state.cartItems.findIndex(
+        (item) => item.product === cartData.product && item.size === cartData.size && item.color === cartData.color,
+      )
+
+      if (existingIndex > -1) {
+        state.cartItems[existingIndex].quantity += cartData.quantity
+      } else {
+        state.cartItems.push(cartData)
+      }
+
+      sessionStorage.setItem("cartItems", JSON.stringify(state.cartItems))
+    },
+    setPromoCode: (state, action) => {
+      state.promoCode = action.payload
+      state.couponError = ""
+    },
+    removeCoupon: (state) => {
+      state.promoApplied = false
+      state.discountAmount = 0
+      state.promoCode = ""
+      state.couponError = ""
+      sessionStorage.removeItem("appliedCoupon")
+    },
+    loadExistingCoupon: (state) => {
+      const storedCoupon = sessionStorage.getItem("appliedCoupon")
+      if (storedCoupon) {
+        const couponData = JSON.parse(storedCoupon)
+        state.promoCode = couponData.code
+        state.promoApplied = couponData.applied
+        state.discountAmount = couponData.discountAmount
+      }
+    },
+    clearCouponError: (state) => {
+      state.couponError = ""
+    },
+    clearCart: (state) => {
+      state.cartItems = []
+      sessionStorage.removeItem("cartItems")
+    },
+  },
+  extraReducers: (builder) => {
+    builder
+      .addCase(applyPromoCode.pending, (state) => {
+        state.loading = true
+        state.couponError = ""
+      })
+      .addCase(applyPromoCode.fulfilled, (state, action) => {
+        state.loading = false
+        state.promoApplied = true
+        state.discountAmount = action.payload.discountAmount
+        state.promoCode = action.payload.code
+      })
+      .addCase(applyPromoCode.rejected, (state, action) => {
+        state.loading = false
+        state.promoApplied = false
+        state.discountAmount = 0
+        state.couponError = action.payload
+      })
+  },
+})
+
+export const {
+  updateQuantity,
+  removeItem,
+  saveForLater,
+  moveToCart,
+  addToCart,
+  setPromoCode,
+  removeCoupon,
+  loadExistingCoupon,
+  clearCouponError,
+  clearCart,
+} = cartSlice.actions
+
+export default cartSlice.reducer

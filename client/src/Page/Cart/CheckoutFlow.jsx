@@ -1,198 +1,162 @@
-import React, { useState, useEffect } from "react"
-import { ArrowLeft, MapPin, CreditCard, Smartphone, CheckCircle, Loader, AlertCircle, X, Package, ShoppingBag, Truck, Phone, User, Star } from "lucide-react"
-import axios from "axios"
+"use client"
+
+import React,{ useEffect } from "react"
+import {
+  ArrowLeft,
+  MapPin,
+  CreditCard,
+  Smartphone,
+  CheckCircle,
+  Loader,
+  AlertCircle,
+  X,
+  Package,
+  ShoppingBag,
+  Truck,
+  Phone,
+  Star,
+} from "lucide-react"
+import { useSelector, useDispatch } from "react-redux"
+import {
+  setCurrentStep,
+  setError,
+  clearError,
+  updateAddress,
+  setPaymentMethod,
+  setTransactionId,
+  calculateTotals,
+  removeCoupon,
+  loadAppliedCoupon,
+  resetCheckout,
+  fetchSettings,
+  createOrder,
+} from "../store/slices/checkoutSlice"
+import { fetchUserDetails } from "../store/slices/userSlice"
+import { clearCart } from "../store/slices/cartSlice"
 
 const CheckoutFlow = () => {
-  const [setting, setSetting] = useState({})
-  const [currentStep, setCurrentStep] = useState(1)
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState("")
-  const [success, setSuccess] = useState(false)
-  const [couponCodeId, setCouponCodeId] = useState("")
+  const dispatch = useDispatch()
 
-  // Cart and user data
-  const [cartItems, setCartItems] = useState([])
-  const [user, setUser] = useState({})
-  const [orderTotal, setOrderTotal] = useState(0)
-  const [cartSubtotal, setCartSubtotal] = useState(0)
-  const [shipping, setShipping] = useState(0)
-
-  // Coupon data
-  const [appliedCoupon, setAppliedCoupon] = useState(null)
-  const [discountAmount, setDiscountAmount] = useState(0)
-
-  // Address form
-  const [address, setAddress] = useState({
-    addressLine: "",
-    city: "",
-    state: "",
-    postCode: "",
-    mobileNumber: "",
-  })
-
-  const [qrCodeUrl, setQRCodeUrl] = useState("")
-
-  const handleFetchSetting = async () => {
-    try {
-      const { data } = await axios.get("https://api.nypers.in/api/v1/admin/settings")
-      console.log("data.data.paymentImage", data.data.paymentImage)
-      setQRCodeUrl(data.data.paymentImage)
-    } catch (error) {
-      console.error("Error fetching setting:", error)
-    }
-  }
-  useEffect(() => {
-    handleFetchSetting();
-  })
-
-  // Payment
-  const [paymentMethod, setPaymentMethod] = useState("")
-  const [transactionId, setTransactionId] = useState("")
-
-  // Order data
-  const [createdOrder, setCreatedOrder] = useState(null)
+  // Redux state
+  const { user } = useSelector((state) => state.user)
+  const { cartItems } = useSelector((state) => state.cart)
+  const {
+    currentStep,
+    loading,
+    error,
+    success,
+    qrCodeUrl,
+    address,
+    paymentMethod,
+    transactionId,
+    cartSubtotal,
+    shipping,
+    orderTotal,
+    discountAmount,
+    appliedCoupon,
+    createdOrder,
+  } = useSelector((state) => state.checkout)
 
   useEffect(() => {
-    // Load cart items and user data
-    const storedCart = JSON.parse(sessionStorage.getItem("cartItems") || "[]")
+    // Initialize checkout data
     const token = sessionStorage.getItem("token_login")
-    console.log("token", token)
+    const storedCart = JSON.parse(sessionStorage.getItem("cartItems") || "[]")
 
-    // Load applied coupon data
-    const storedCoupon = sessionStorage.getItem("appliedCoupon")
-
-    setCartItems(storedCart)
-
-    // Calculate subtotal
-    const subtotal = storedCart.reduce((sum, item) => sum + item.price * item.quantity, 0)
-    setCartSubtotal(subtotal)
-
-    // Calculate shipping
-    const shippingCost = subtotal > 100 ? 0 : 9.99
-    setShipping(shippingCost)
-
-    // Apply coupon if exists
-    if (storedCoupon) {
-      const couponData = JSON.parse(storedCoupon)
-      setAppliedCoupon(couponData)
-      setDiscountAmount(couponData.discountAmount)
-      // Calculate total with discount
-      setOrderTotal(subtotal - couponData.discountAmount + shippingCost)
-      setCouponCodeId(couponData.offerId)
-    } else {
-      // Calculate total without discount
-      setOrderTotal(subtotal + shippingCost)
-    }
-
-    // Fetch user details
+    // Fetch user details if token exists
     if (token) {
-      fetchUserDetails(token)
+      dispatch(fetchUserDetails())
     }
-  }, [])
 
-  const fetchUserDetails = async (token) => {
-    try {
-      const response = await fetch("https://api.nypers.in/api/v1/my-details", {
-        headers: { Authorization: `Bearer ${token}` },
-      })
-      const data = await response.json()
-      console.log("data", data)
-      setUser(data.data)
-    } catch (error) {
-      console.error("Error fetching user details:", error)
+    // Load applied coupon
+    dispatch(loadAppliedCoupon())
+
+    // Calculate totals
+    const storedCoupon = sessionStorage.getItem("appliedCoupon")
+    const couponData = storedCoupon ? JSON.parse(storedCoupon) : null
+
+    dispatch(calculateTotals({ cartItems: storedCart, appliedCoupon: couponData }))
+
+    // Fetch settings
+    dispatch(fetchSettings())
+
+    // Cleanup on unmount
+    return () => {
+      dispatch(resetCheckout())
     }
-  }
-
-  const removeCoupon = () => {
-    setAppliedCoupon(null)
-    setDiscountAmount(0)
-    setOrderTotal(cartSubtotal + shipping)
-    sessionStorage.removeItem("appliedCoupon")
-  }
+  }, [dispatch])
 
   const handleAddressSubmit = () => {
     if (!address.addressLine || !address.city || !address.state || !address.postCode || !address.mobileNumber) {
-      setError("Please fill in all address fields")
+      dispatch(setError("Please fill in all address fields"))
       return
     }
-    setError("")
-    setCurrentStep(2)
+    dispatch(clearError())
+    dispatch(setCurrentStep(2))
   }
 
   const handlePaymentMethodSelect = (method) => {
-    setPaymentMethod(method)
+    dispatch(setPaymentMethod(method))
     if (method === "COD") {
-      setCurrentStep(4)
+      dispatch(setCurrentStep(4))
     } else {
-      setCurrentStep(3)
+      dispatch(setCurrentStep(3))
     }
   }
 
   const handleCreateOrder = async () => {
-    setLoading(true)
-    setError("")
+    const token = sessionStorage.getItem("token_login")
 
-    try {
-      const token = sessionStorage.getItem("token_login")
-      console.log("cartItem", cartItems)
-      // Prepare order data with coupon information
-      const orderData = {
-        items: cartItems.map((item) => ({
-          product_id: item.product,
-          product_name: item.product_name,
-          Qunatity: item.quantity,
-          price_after_discount: item.price,
-          Varient_id: item.variantId || null,
-          variant: item.variant || "",
-          size: item.size,
-          color: item.color,
-        })),
-        totalAmount: cartSubtotal, // Original amount before discount
-        payAmt: orderTotal, // Final amount after discount
-        isVarientInCart: cartItems.some((item) => item.variantId),
-        paymentType: paymentMethod,
-        offerId: appliedCoupon ? appliedCoupon.offerId : null, // Include offer ID if available
-        shipping: address,
-        discountAmount: discountAmount,
-        couponCode: appliedCoupon ? appliedCoupon.code : null,
-        transactionId: paymentMethod === "ONLINE" ? transactionId : null,
-      }
-      console.log("orderData", orderData)
-      const response = await fetch("https://api.nypers.in/api/v1/add-order", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(orderData),
-      })
+    // Prepare order data
+    const orderData = {
+      items: cartItems.map((item) => ({
+        product_id: item.product,
+        product_name: item.product_name,
+        Qunatity: item.quantity,
+        price_after_discount: item.price,
+        Varient_id: item.variantId || null,
+        variant: item.variant || "",
+        size: item.size,
+        color: item.color,
+      })),
+      totalAmount: cartSubtotal,
+      payAmt: orderTotal,
+      isVarientInCart: cartItems.some((item) => item.variantId),
+      paymentType: paymentMethod,
+      offerId: appliedCoupon ? appliedCoupon.offerId : null,
+      shipping: address,
+      discountAmount: discountAmount,
+      couponCode: appliedCoupon ? appliedCoupon.code : null,
+      transactionId: paymentMethod === "ONLINE" ? transactionId : null,
+    }
 
-      const result = await response.json()
+    const result = await dispatch(createOrder({ orderData, token }))
 
-      if (result.success) {
-        setCreatedOrder(result.order)
-        setSuccess(true)
-        // Clear cart and coupon data
-        sessionStorage.removeItem("cartItems")
-        sessionStorage.removeItem("appliedCoupon")
-        setCartItems([])
-      } else {
-        setError(result.message || "Failed to create order")
-      }
-    } catch (error) {
-      setError("Failed to create order")
-    } finally {
-      setLoading(false)
+    if (createOrder.fulfilled.match(result)) {
+      // Clear cart from Redux store
+      dispatch(clearCart())
     }
   }
 
   const handleOnlinePaymentConfirm = () => {
     if (!transactionId.trim()) {
-      setError("Please enter transaction ID")
+      dispatch(setError("Please enter transaction ID"))
       return
     }
-    setError("")
+    dispatch(clearError())
     handleCreateOrder()
+  }
+
+  const handleBackNavigation = () => {
+    if (currentStep > 1) {
+      dispatch(setCurrentStep(currentStep - 1))
+    } else {
+      window.history.back()
+    }
+  }
+
+  const handleRemoveCoupon = () => {
+    dispatch(removeCoupon())
+    dispatch(calculateTotals({ cartItems, appliedCoupon: null }))
   }
 
   if (success && createdOrder) {
@@ -231,7 +195,7 @@ const CheckoutFlow = () => {
     1: { icon: MapPin, title: "Delivery Address", color: "from-blue-500 to-cyan-500" },
     2: { icon: CreditCard, title: "Payment Method", color: "from-purple-500 to-pink-500" },
     3: { icon: Smartphone, title: "Online Payment", color: "from-emerald-500 to-teal-500" },
-    4: { icon: CheckCircle, title: "Confirm Order", color: "from-orange-500 to-red-500" }
+    4: { icon: CheckCircle, title: "Confirm Order", color: "from-orange-500 to-red-500" },
   }
 
   return (
@@ -241,7 +205,7 @@ const CheckoutFlow = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-20">
             <button
-              onClick={() => (currentStep > 1 ? setCurrentStep(currentStep - 1) : window.history.back())}
+              onClick={handleBackNavigation}
               className="flex items-center text-gray-600 hover:text-gray-900 transition-all duration-200 hover:scale-105"
             >
               <ArrowLeft size={20} className="mr-2" />
@@ -269,31 +233,30 @@ const CheckoutFlow = () => {
               const StepIcon = stepLabels[step].icon
               const isActive = step === currentStep
               const isCompleted = step < currentStep
-
               return (
                 <div key={step} className="flex items-center">
                   <div className="relative">
                     <div
-                      className={`w-12 h-12 rounded-full flex items-center justify-center text-sm font-bold transition-all duration-300 ${isActive
+                      className={`w-12 h-12 rounded-full flex items-center justify-center text-sm font-bold transition-all duration-300 ${
+                        isActive
                           ? `bg-gradient-to-r ${stepLabels[step].color} text-white shadow-lg scale-110`
                           : isCompleted
                             ? "bg-emerald-500 text-white shadow-md"
                             : "bg-gray-200 text-gray-600"
-                        }`}
+                      }`}
                     >
-                      {isCompleted ? (
-                        <CheckCircle size={20} />
-                      ) : (
-                        <StepIcon size={20} />
-                      )}
+                      {isCompleted ? <CheckCircle size={20} /> : <StepIcon size={20} />}
                     </div>
                     {isActive && (
                       <div className="absolute -inset-2 bg-gradient-to-r from-blue-400 to-purple-400 rounded-full opacity-20 animate-pulse"></div>
                     )}
                   </div>
                   {step < 4 && (
-                    <div className={`w-20 h-1 mx-4 rounded-full transition-all duration-500 ${step < currentStep ? "bg-gradient-to-r from-emerald-400 to-emerald-500" : "bg-gray-200"
-                      }`} />
+                    <div
+                      className={`w-20 h-1 mx-4 rounded-full transition-all duration-500 ${
+                        step < currentStep ? "bg-gradient-to-r from-emerald-400 to-emerald-500" : "bg-gray-200"
+                      }`}
+                    />
                   )}
                 </div>
               )
@@ -334,7 +297,7 @@ const CheckoutFlow = () => {
                     <label className="block text-sm font-semibold text-gray-700 mb-3">Complete Address</label>
                     <textarea
                       value={address.addressLine}
-                      onChange={(e) => setAddress({ ...address, addressLine: e.target.value })}
+                      onChange={(e) => dispatch(updateAddress({ addressLine: e.target.value }))}
                       className="w-full border-2 border-gray-200 rounded-2xl px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white/50 hover:border-gray-300"
                       rows="3"
                       placeholder="Enter your complete address with landmarks"
@@ -346,7 +309,7 @@ const CheckoutFlow = () => {
                       <input
                         type="text"
                         value={address.city}
-                        onChange={(e) => setAddress({ ...address, city: e.target.value })}
+                        onChange={(e) => dispatch(updateAddress({ city: e.target.value }))}
                         className="w-full border-2 border-gray-200 rounded-2xl px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white/50 hover:border-gray-300"
                         placeholder="Your city"
                       />
@@ -356,7 +319,7 @@ const CheckoutFlow = () => {
                       <input
                         type="text"
                         value={address.state}
-                        onChange={(e) => setAddress({ ...address, state: e.target.value })}
+                        onChange={(e) => dispatch(updateAddress({ state: e.target.value }))}
                         className="w-full border-2 border-gray-200 rounded-2xl px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white/50 hover:border-gray-300"
                         placeholder="Your state"
                       />
@@ -368,7 +331,7 @@ const CheckoutFlow = () => {
                       <input
                         type="text"
                         value={address.postCode}
-                        onChange={(e) => setAddress({ ...address, postCode: e.target.value })}
+                        onChange={(e) => dispatch(updateAddress({ postCode: e.target.value }))}
                         className="w-full border-2 border-gray-200 rounded-2xl px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white/50 hover:border-gray-300"
                         placeholder="PIN Code"
                       />
@@ -378,7 +341,7 @@ const CheckoutFlow = () => {
                       <input
                         type="tel"
                         value={address.mobileNumber}
-                        onChange={(e) => setAddress({ ...address, mobileNumber: e.target.value })}
+                        onChange={(e) => dispatch(updateAddress({ mobileNumber: e.target.value }))}
                         className="w-full border-2 border-gray-200 rounded-2xl px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white/50 hover:border-gray-300"
                         placeholder="10-digit mobile number"
                       />
@@ -462,7 +425,11 @@ const CheckoutFlow = () => {
                   </div>
                   <div className="bg-gradient-to-br from-gray-50 to-blue-50 rounded-3xl p-8 mb-6 border border-gray-100">
                     <div className="bg-white rounded-2xl p-6 inline-block shadow-lg">
-                      <img src={qrCodeUrl || "/placeholder.svg"} alt="QR Code" className="w-48 h-48 mx-auto mb-4 rounded-xl" />
+                      <img
+                        src={qrCodeUrl || "/placeholder.svg"}
+                        alt="QR Code"
+                        className="w-48 h-48 mx-auto mb-4 rounded-xl"
+                      />
                     </div>
                     <div className="mt-6">
                       <p className="text-3xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
@@ -477,7 +444,7 @@ const CheckoutFlow = () => {
                       <input
                         type="text"
                         value={transactionId}
-                        onChange={(e) => setTransactionId(e.target.value)}
+                        onChange={(e) => dispatch(setTransactionId(e.target.value))}
                         className="w-full border-2 border-gray-200 rounded-2xl px-4 py-3 focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all duration-200 bg-white/50 text-center font-mono"
                         placeholder="Enter 12-digit transaction ID"
                       />
@@ -559,7 +526,7 @@ const CheckoutFlow = () => {
                       </p>
                     </div>
                     <button
-                      onClick={removeCoupon}
+                      onClick={handleRemoveCoupon}
                       className="text-red-600 hover:text-red-700 hover:bg-red-100 p-2 rounded-full transition-all duration-200"
                     >
                       <X size={16} />
@@ -649,10 +616,13 @@ const CheckoutFlow = () => {
                     <CreditCard className="w-5 h-5 mr-2 text-purple-600" />
                     Payment Method
                   </h4>
-                  <div className={`rounded-2xl p-4 border-2 ${paymentMethod === "ONLINE"
-                      ? "bg-gradient-to-r from-blue-50 to-cyan-50 border-blue-200"
-                      : "bg-gradient-to-r from-green-50 to-emerald-50 border-green-200"
-                    }`}>
+                  <div
+                    className={`rounded-2xl p-4 border-2 ${
+                      paymentMethod === "ONLINE"
+                        ? "bg-gradient-to-r from-blue-50 to-cyan-50 border-blue-200"
+                        : "bg-gradient-to-r from-green-50 to-emerald-50 border-green-200"
+                    }`}
+                  >
                     <p className="text-sm font-semibold text-gray-800 flex items-center">
                       {paymentMethod === "ONLINE" ? (
                         <>

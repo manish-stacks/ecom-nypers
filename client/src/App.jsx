@@ -19,9 +19,12 @@ import CartPage from './Page/Cart/Cart'
 import CheckoutFlow from './Page/Cart/CheckoutFlow'
 import Profile from './Page/Profile/Profile'
 import TrackYourOrder from './Page/TrackYourOrder/TrackYourOrder'
+import { Provider } from 'react-redux'
+import { store } from './Page/store/store'
 
 const App = () => {
   return (
+    <Provider store={store}>
     <Router>
       <Header />
       <Routes>
@@ -44,6 +47,7 @@ const App = () => {
       <Footer />
       <ToastContainer />
     </Router>
+    </Provider>
   )
 }
 

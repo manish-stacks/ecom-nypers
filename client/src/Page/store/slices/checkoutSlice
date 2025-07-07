@@ -1,0 +1,202 @@
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit"
+import axios from "axios"
+
+// Async thunk for fetching settings
+export const fetchSettings = createAsyncThunk("checkout/fetchSettings", async (_, { rejectWithValue }) => {
+  try {
+    const { data } = await axios.get("https://api.nypers.in/api/v1/admin/settings")
+    return data.data
+  } catch (error) {
+    return rejectWithValue(error.response?.data?.message || "Failed to fetch settings")
+  }
+})
+
+// Async thunk for creating order
+export const createOrder = createAsyncThunk(
+  "checkout/createOrder",
+  async ({ orderData, token }, { rejectWithValue }) => {
+    try {
+      const response = await fetch("https://api.nypers.in/api/v1/add-order", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(orderData),
+      })
+
+      const result = await response.json()
+
+      if (result.success) {
+        // Clear cart and coupon data on successful order
+        sessionStorage.removeItem("cartItems")
+        sessionStorage.removeItem("appliedCoupon")
+        return result.order
+      } else {
+        return rejectWithValue(result.message || "Failed to create order")
+      }
+    } catch (error) {
+      return rejectWithValue("Failed to create order")
+    }
+  },
+)
+
+const checkoutSlice = createSlice({
+  name: "checkout",
+  initialState: {
+    // Step management
+    currentStep: 1,
+    loading: false,
+    error: "",
+    success: false,
+
+    // Settings
+    settings: {},
+    qrCodeUrl: "",
+
+    // Address
+    address: {
+      addressLine: "",
+      city: "",
+      state: "",
+      postCode: "",
+      mobileNumber: "",
+    },
+
+    // Payment
+    paymentMethod: "",
+    transactionId: "",
+
+    // Order calculations
+    cartSubtotal: 0,
+    shipping: 0,
+    orderTotal: 0,
+    discountAmount: 0,
+
+    // Applied coupon
+    appliedCoupon: null,
+
+    // Created order
+    createdOrder: null,
+  },
+  reducers: {
+    setCurrentStep: (state, action) => {
+      state.currentStep = action.payload
+    },
+    setError: (state, action) => {
+      state.error = action.payload
+    },
+    clearError: (state) => {
+      state.error = ""
+    },
+    setSuccess: (state, action) => {
+      state.success = action.payload
+    },
+    updateAddress: (state, action) => {
+      state.address = { ...state.address, ...action.payload }
+    },
+    setPaymentMethod: (state, action) => {
+      state.paymentMethod = action.payload
+    },
+    setTransactionId: (state, action) => {
+      state.transactionId = action.payload
+    },
+    calculateTotals: (state, action) => {
+      const { cartItems, appliedCoupon } = action.payload
+      const subtotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0)
+      const shippingCost = subtotal > 100 ? 0 : 9.99
+
+      state.cartSubtotal = subtotal
+      state.shipping = shippingCost
+
+      if (appliedCoupon) {
+        state.appliedCoupon = appliedCoupon
+        state.discountAmount = appliedCoupon.discountAmount
+        state.orderTotal = subtotal - appliedCoupon.discountAmount + shippingCost
+      } else {
+        state.appliedCoupon = null
+        state.discountAmount = 0
+        state.orderTotal = subtotal + shippingCost
+      }
+    },
+    removeCoupon: (state) => {
+      state.appliedCoupon = null
+      state.discountAmount = 0
+      state.orderTotal = state.cartSubtotal + state.shipping
+      sessionStorage.removeItem("appliedCoupon")
+    },
+    loadAppliedCoupon: (state) => {
+      const storedCoupon = sessionStorage.getItem("appliedCoupon")
+      if (storedCoupon) {
+        const couponData = JSON.parse(storedCoupon)
+        state.appliedCoupon = couponData
+        state.discountAmount = couponData.discountAmount
+      }
+    },
+    resetCheckout: (state) => {
+      state.currentStep = 1
+      state.loading = false
+      state.error = ""
+      state.success = false
+      state.address = {
+        addressLine: "",
+        city: "",
+        state: "",
+        postCode: "",
+        mobileNumber: "",
+      }
+      state.paymentMethod = ""
+      state.transactionId = ""
+      state.appliedCoupon = null
+      state.discountAmount = 0
+      state.createdOrder = null
+    },
+  },
+  extraReducers: (builder) => {
+    builder
+      // Fetch settings
+      .addCase(fetchSettings.pending, (state) => {
+        state.loading = true
+        state.error = ""
+      })
+      .addCase(fetchSettings.fulfilled, (state, action) => {
+        state.loading = false
+        state.settings = action.payload
+        state.qrCodeUrl = action.payload.paymentImage
+      })
+      .addCase(fetchSettings.rejected, (state, action) => {
+        state.loading = false
+        state.error = action.payload
+      })
+      // Create order
+      .addCase(createOrder.pending, (state) => {
+        state.loading = true
+        state.error = ""
+      })
+      .addCase(createOrder.fulfilled, (state, action) => {
+        state.loading = false
+        state.success = true
+        state.createdOrder = action.payload
+      })
+      .addCase(createOrder.rejected, (state, action) => {
+        state.loading = false
+        state.error = action.payload
+      })
+  },
+})
+
+export const {
+  setCurrentStep,
+  setError,
+  clearError,
+  setSuccess,
+  updateAddress,
+  setPaymentMethod,
+  setTransactionId,
+  calculateTotals,
+  removeCoupon,
+  loadAppliedCoupon,
+  resetCheckout,
+} = checkoutSlice.actions
+
+export default checkoutSlice.reducer

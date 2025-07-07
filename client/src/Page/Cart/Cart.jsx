@@ -1,101 +1,47 @@
+"use client"
 
-import React, { useState, useEffect } from "react"
+import React,{ useEffect } from "react"
 import { X, Plus, Minus, ShoppingBag, ArrowLeft, Trash2 } from "lucide-react"
 import { Link } from "react-router-dom"
-import axios from "axios"
 import { toast } from "react-toastify"
+import { useSelector, useDispatch } from "react-redux"
+import {
+  updateQuantity,
+  removeItem,
+  saveForLater,
+  moveToCart,
+  setPromoCode,
+  removeCoupon,
+  loadExistingCoupon,
+  applyPromoCode,
+} from "../store/slices/cartSlice"
+import { fetchUserDetails } from "../store/slices/userSlice"
 
-const CartPage = () => {
-  const [user, setUser] = useState({})
+const Cart = () => {
+  const dispatch = useDispatch()
+  const { user } = useSelector((state) => state.user)
+  const { cartItems, savedItems, promoCode, promoApplied, discountAmount, couponError, loading } = useSelector(
+    (state) => state.cart,
+  )
 
   useEffect(() => {
     const token = sessionStorage.getItem("token_login")
-    const fetchUser = async () => {
-      try {
-        const { data } = await axios.get("https://api.nypers.in/api/v1/my-details", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        })
-        setUser(data.data)
-        console.log("data.data", data.data)
-      } catch (error) {
-        console.error("Error fetching user details:", error)
-      }
-    }
-
     if (token) {
-      fetchUser()
+      dispatch(fetchUserDetails())
     }
-  }, [])
+  }, [dispatch])
 
-  const [cartItems, setCartItems] = useState(() => {
-    const storedCart = sessionStorage.getItem("cartItems")
-    return storedCart ? JSON.parse(storedCart) : []
-  })
-
-  const [savedItems, setSavedItems] = useState(() => {
-    const storedSaved = sessionStorage.getItem("savedItems")
-    return storedSaved ? JSON.parse(storedSaved) : []
-  })
-
-  const [promoCode, setPromoCode] = useState("")
-  const [promoApplied, setPromoApplied] = useState(false)
-  const [discountAmount, setDiscountAmount] = useState(0)
-  const [couponError, setCouponError] = useState("")
-
-  // Load existing coupon data from sessionStorage
   useEffect(() => {
-    const storedCoupon = sessionStorage.getItem("appliedCoupon")
-    if (storedCoupon) {
-      const couponData = JSON.parse(storedCoupon)
-      setPromoCode(couponData.code)
-      setPromoApplied(couponData.applied)
-      setDiscountAmount(couponData.discountAmount)
-    }
-  }, [])
+    dispatch(loadExistingCoupon())
+  }, [dispatch])
 
   const cartSubtotal = cartItems.reduce((total, item) => total + Number(item.price) * Number(item.quantity), 0)
-
   const shipping = cartSubtotal > 100 ? 0 : 9.99
   const cartTotal = promoApplied ? cartSubtotal - discountAmount + shipping : cartSubtotal + shipping
 
-  const applyPromoCode = async () => {
-    setCouponError("")
-    // console.log("i am hit")
-    try {
-      const response = await axios.post("https://api.nypers.in/api/v1/apply-coupon", {
-        code: promoCode,
-        orderAmount: cartSubtotal,
-      })
-
-      const { discountAmount: discount, finalAmount,appliedCoupon } = response.data
-      // console.log("appliedCoupon",appliedCoupon)
-      setPromoApplied(true)
-      setDiscountAmount(discount)
-
-      // Store coupon data in sessionStorage
-      const couponData = {
-        code: promoCode,
-        applied: true,
-        discountAmount: discount,
-        originalAmount: cartSubtotal,
-        finalAmount: finalAmount,
-        offerId: appliedCoupon._id
-      }
-      sessionStorage.setItem("appliedCoupon", JSON.stringify(couponData))
-    } catch (error) {
-      setPromoApplied(false)
-      setDiscountAmount(0)
-      // Remove coupon data from sessionStorage
-      sessionStorage.removeItem("appliedCoupon")
-
-      if (error.response) {
-        setCouponError(error.response.data.message)
-      } else {
-        setCouponError("Failed to apply coupon. Try again later.")
-      }
-    }
+  const handleApplyPromoCode = async () => {
+    if (!promoCode.trim()) return
+    dispatch(applyPromoCode({ code: promoCode, orderAmount: cartSubtotal }))
   }
 
   const handleCheckout = () => {
@@ -104,49 +50,33 @@ const CartPage = () => {
       toast.error("Please login to checkout")
       setTimeout(() => {
         window.location.href = "/login"
-      }, 3000);
+      }, 3000)
     } else if (cartItems.length === 0) {
       toast.error("Your cart is empty. Please add items to your cart before checking out.")
-    } else{
+    } else {
       window.location.href = "/checkout"
     }
   }
 
-  const removeCoupon = () => {
-    setPromoApplied(false)
-    setDiscountAmount(0)
-    setPromoCode("")
-    sessionStorage.removeItem("appliedCoupon")
+  const handleUpdateQuantity = (id, newQuantity) => {
+    dispatch(updateQuantity({ id, newQuantity }))
   }
 
-  const updateQuantity = (id, newQuantity) => {
-    if (newQuantity < 1) return
-    const updatedCart = cartItems.map((item) => (item.product === id ? { ...item, quantity: newQuantity } : item))
-    setCartItems(updatedCart)
+  const handleRemoveItem = (id) => {
+    dispatch(removeItem(id))
   }
 
-  const removeItem = (id) => {
-    const updatedCart = cartItems.filter((item) => item.product !== id)
-    setCartItems(updatedCart)
+  const handleSaveForLater = (item) => {
+    dispatch(saveForLater(item))
   }
 
-  const saveForLater = (item) => {
-    setSavedItems([...savedItems, item])
-    removeItem(item.product)
+  const handleMoveToCart = (item) => {
+    dispatch(moveToCart(item))
   }
 
-  const moveToCart = (item) => {
-    setCartItems([...cartItems, { ...item, quantity: 1 }])
-    setSavedItems(savedItems.filter((saved) => saved.product !== item.product))
+  const handleRemoveCoupon = () => {
+    dispatch(removeCoupon())
   }
-
-  useEffect(() => {
-    sessionStorage.setItem("cartItems", JSON.stringify(cartItems))
-  }, [cartItems])
-
-  useEffect(() => {
-    sessionStorage.setItem("savedItems", JSON.stringify(savedItems))
-  }, [savedItems])
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -213,14 +143,14 @@ const CartPage = () => {
                           <div className="flex items-center justify-between">
                             <div className="flex items-center space-x-3">
                               <button
-                                onClick={() => updateQuantity(item.product, item.quantity - 1)}
+                                onClick={() => handleUpdateQuantity(item.product, item.quantity - 1)}
                                 className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center text-gray-600 hover:bg-gray-100 transition-colors"
                               >
                                 <Minus size={14} />
                               </button>
                               <span className="text-lg font-medium w-8 text-center">{item.quantity}</span>
                               <button
-                                onClick={() => updateQuantity(item.product, item.quantity + 1)}
+                                onClick={() => handleUpdateQuantity(item.product, item.quantity + 1)}
                                 className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center text-gray-600 hover:bg-gray-100 transition-colors"
                               >
                                 <Plus size={14} />
@@ -235,7 +165,7 @@ const CartPage = () => {
                           </div>
                           <div className="flex items-center space-x-4 mt-4">
                             <button
-                              onClick={() => removeItem(item.product)}
+                              onClick={() => handleRemoveItem(item.product)}
                               className="flex items-center text-sm text-red-600 hover:text-red-700 transition-colors"
                             >
                               <Trash2 size={16} className="mr-1" />
@@ -272,7 +202,7 @@ const CartPage = () => {
                             <p className="text-lg font-semibold text-gray-900 mt-1">₹{item.price}</p>
                           </div>
                           <button
-                            onClick={() => moveToCart(item)}
+                            onClick={() => handleMoveToCart(item)}
                             className="bg-[#0D1524] text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-[#0d1524] transition-colors"
                           >
                             Add to Cart
@@ -299,7 +229,7 @@ const CartPage = () => {
                         <p className="text-sm font-medium text-green-800">{promoCode}</p>
                         <p className="text-xs text-green-600">Coupon applied successfully!</p>
                       </div>
-                      <button onClick={removeCoupon} className="text-red-600 hover:text-red-700">
+                      <button onClick={handleRemoveCoupon} className="text-red-600 hover:text-red-700">
                         <X size={16} />
                       </button>
                     </div>
@@ -308,15 +238,16 @@ const CartPage = () => {
                       <input
                         type="text"
                         value={promoCode}
-                        onChange={(e) => setPromoCode(e.target.value)}
+                        onChange={(e) => dispatch(setPromoCode(e.target.value))}
                         placeholder="Enter code"
                         className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       />
                       <button
-                        onClick={applyPromoCode}
-                        className="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors"
+                        onClick={handleApplyPromoCode}
+                        disabled={loading || !promoCode.trim()}
+                        className="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                       >
-                        Apply
+                        {loading ? "Applying..." : "Apply"}
                       </button>
                     </div>
                   )}
@@ -358,7 +289,6 @@ const CartPage = () => {
 
                 {/* Checkout Button */}
                 <Link
-                  // to="/checkout"
                   onClick={handleCheckout}
                   className="w-full bg-[#0D1524] text-white py-4 rounded-lg font-semibold text-lg hover:bg-[#0d1524] transition-colors mb-3 block text-center"
                 >
@@ -381,4 +311,4 @@ const CartPage = () => {
   )
 }
 
-export default CartPage
+export default Cart

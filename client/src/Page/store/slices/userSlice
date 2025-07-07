@@ -1,0 +1,54 @@
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit"
+import axios from "axios"
+
+// Async thunk for fetching user details
+export const fetchUserDetails = createAsyncThunk("user/fetchUserDetails", async (_, { rejectWithValue }) => {
+  try {
+    const token = sessionStorage.getItem("token_login")
+    if (!token) {
+      throw new Error("No token found")
+    }
+
+    const { data } = await axios.get("https://api.nypers.in/api/v1/my-details", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+    return data.data
+  } catch (error) {
+    return rejectWithValue(error.response?.data?.message || error.message)
+  }
+})
+
+const userSlice = createSlice({
+  name: "user",
+  initialState: {
+    user: {},
+    loading: false,
+    error: null,
+  },
+  reducers: {
+    clearUser: (state) => {
+      state.user = {}
+      state.error = null
+    },
+  },
+  extraReducers: (builder) => {
+    builder
+      .addCase(fetchUserDetails.pending, (state) => {
+        state.loading = true
+        state.error = null
+      })
+      .addCase(fetchUserDetails.fulfilled, (state, action) => {
+        state.loading = false
+        state.user = action.payload
+      })
+      .addCase(fetchUserDetails.rejected, (state, action) => {
+        state.loading = false
+        state.error = action.payload
+      })
+  },
+})
+
+export const { clearUser } = userSlice.actions
+export default userSlice.reducer

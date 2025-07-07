@@ -1,0 +1,90 @@
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit"
+import axios from "axios"
+
+// Async thunk for fetching product details
+export const fetchProduct = createAsyncThunk("product/fetchProduct", async (productId, { rejectWithValue }) => {
+  try {
+    const { data } = await axios.get(`https://api.nypers.in/api/v1/get-product/${productId}`)
+    return data.data
+  } catch (error) {
+    return rejectWithValue(error.response?.data?.message || "Failed to fetch product")
+  }
+})
+
+const productSlice = createSlice({
+  name: "product",
+  initialState: {
+    product: {},
+    loading: false,
+    error: null,
+    selectedImage: 0,
+    selectedVariant: 0,
+    selectedColor: "",
+    quantity: 1,
+    isWishlisted: false,
+  },
+  reducers: {
+    setSelectedImage: (state, action) => {
+      state.selectedImage = action.payload
+    },
+    setSelectedVariant: (state, action) => {
+      state.selectedVariant = action.payload
+    },
+    setSelectedColor: (state, action) => {
+      state.selectedColor = action.payload
+    },
+    setQuantity: (state, action) => {
+      state.quantity = action.payload
+    },
+    incrementQuantity: (state) => {
+      state.quantity += 1
+    },
+    decrementQuantity: (state) => {
+      if (state.quantity > 1) {
+        state.quantity -= 1
+      }
+    },
+    toggleWishlist: (state) => {
+      state.isWishlisted = !state.isWishlisted
+    },
+    resetProductState: (state) => {
+      state.selectedImage = 0
+      state.selectedVariant = 0
+      state.selectedColor = ""
+      state.quantity = 1
+      state.isWishlisted = false
+    },
+  },
+  extraReducers: (builder) => {
+    builder
+      .addCase(fetchProduct.pending, (state) => {
+        state.loading = true
+        state.error = null
+      })
+      .addCase(fetchProduct.fulfilled, (state, action) => {
+        state.loading = false
+        state.product = action.payload
+        // Set default color if colors are available
+        if (action.payload.color && action.payload.color.length > 0) {
+          state.selectedColor = action.payload.color[0]
+        }
+      })
+      .addCase(fetchProduct.rejected, (state, action) => {
+        state.loading = false
+        state.error = action.payload
+      })
+  },
+})
+
+export const {
+  setSelectedImage,
+  setSelectedVariant,
+  setSelectedColor,
+  setQuantity,
+  incrementQuantity,
+  decrementQuantity,
+  toggleWishlist,
+  resetProductState,
+} = productSlice.actions
+
+export default productSlice.reducer
