@@ -48,9 +48,9 @@ const Cart = () => {
     const token = sessionStorage.getItem("token_login")
     if (!token) {
       toast.error("Please login to checkout")
-      setTimeout(() => {
-        window.location.href = "/login"
-      }, 3000)
+      window.location.href = "/login"
+      // setTimeout(() => {
+      // }, 3000)
     } else if (cartItems.length === 0) {
       toast.error("Your cart is empty. Please add items to your cart before checking out.")
     } else {
