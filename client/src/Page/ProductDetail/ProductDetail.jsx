@@ -154,7 +154,7 @@ const ProductDetail = () => {
                   <img
                     src={images[selectedImage] || "/placeholder.svg"}
                     alt={product.product_name}
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-contain"
                   />
                 )}
                 {images.length > 1 && (
@@ -190,7 +190,7 @@ const ProductDetail = () => {
                       <img
                         src={image || "/placeholder.svg"}
                         alt={`Product ${index + 1}`}
-                        className="w-full h-full object-cover"
+                        className="w-full h-full object-contain"
                       />
                     </button>
                   ))}
