@@ -68,4 +68,5 @@ app.use('/api/v1', route)
 app.listen(port, () => {
     console.log(`Bull Board available at http://localhost:${port}/admin/queues`);
     console.log(`Server is running on http://localhost:${port}`);
+    console.log("Mongo URL:", process.env.MONGO_DB_URL);
 });
